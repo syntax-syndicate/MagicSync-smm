@@ -69,7 +69,7 @@ export class InstagramPlugin extends BaseSchedulerPlugin {
    */
   async getProfile(accountId: string, accessToken: string): Promise<any> {
     const response = await fetch(
-      `https://graph.facebook.com/v18.0/${accountId}?fields=id,username,name,profile_picture_url,followers_count,follows_count,media_count`,
+      `https://graph.facebook.com/v21.0/${accountId}?fields=id,username,name,profile_picture_url,followers_count,follows_count,media_count`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -84,7 +84,7 @@ export class InstagramPlugin extends BaseSchedulerPlugin {
    */
   async getMediaInsights(mediaId: string, accessToken: string): Promise<any> {
     const response = await fetch(
-      `https://graph.facebook.com/v18.0/${mediaId}/insights?metric=engagement,impressions,reach,saved`,
+      `https://graph.facebook.com/v21.0/${mediaId}/insights?metric=views,reach,saved,likes,comments,shares`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -101,35 +101,49 @@ export class InstagramPlugin extends BaseSchedulerPlugin {
     igUserId: string,
     mediaUrl: string,
     caption: string,
-    mediaType: 'IMAGE' | 'VIDEO' | 'CAROUSEL' | 'STORIES',
+    mediaType: 'IMAGE' | 'VIDEO' | 'CAROUSEL' | 'STORIES' | 'REELS',
     accessToken: string,
-    children?: string[]
+    children?: string[],
+    settings?: any,
+    isCarouselItem?: boolean
   ): Promise<string> {
     const params = new URLSearchParams({
       access_token: accessToken,
-      caption: caption,
     });
+
+    if (caption) {
+      params.append('caption', caption);
+    }
+
+    if (isCarouselItem) {
+      params.append('is_carousel_item', 'true');
+    }
 
     if (mediaType === 'CAROUSEL' && children && children.length > 0) {
       params.append('media_type', 'CAROUSEL');
       params.append('children', children.join(','));
-    } else if (mediaType === 'VIDEO') {
-      params.append('media_type', 'VIDEO');
+    } else if (mediaType === 'VIDEO' || mediaType === 'REELS') {
+      params.append('media_type', mediaType);
       params.append('video_url', getPublicUrlForAsset(mediaUrl));
+
+      if (mediaType === 'REELS' && settings?.is_trial_reel) {
+        params.append('trial_params', JSON.stringify({
+          graduation_strategy: settings?.graduation_strategy || 'MANUAL'
+        }));
+      }
     } else if (mediaType === 'STORIES') {
       params.append('media_type', 'STORIES');
-      params.append('image_url', getPublicUrlForAsset(mediaUrl)); // Stories support image_url or video_url, assuming image for now or need logic
-      // If video story, we need video_url. Let's handle generic logic:
-      if (mediaUrl.includes('.mp4') || mediaUrl.includes('video')) {
-        params.delete('image_url');
+      if (mediaUrl.match(/\.(mp4|mov|wmv|flv|avi)$/i) || mediaUrl.includes('video')) {
         params.append('video_url', getPublicUrlForAsset(mediaUrl));
+      } else {
+        params.append('image_url', getPublicUrlForAsset(mediaUrl));
       }
     } else {
       params.append('image_url', getPublicUrlForAsset(mediaUrl));
     }
 
     const response = await fetch(
-      `https://graph.facebook.com/v18.0/${igUserId}/media?${params.toString()}`,
+      `https://graph.facebook.com/v21.0/${igUserId}/media?${params.toString()}`,
       {
         method: 'POST',
       }
@@ -150,53 +164,78 @@ export class InstagramPlugin extends BaseSchedulerPlugin {
   private async publishContainer(
     igUserId: string,
     containerId: string,
-    accessToken: string
+    accessToken: string,
+    retries: number = 5
   ): Promise<any> {
     const params = new URLSearchParams({
       access_token: accessToken,
       creation_id: containerId,
     });
 
-    const response = await fetch(
-      `https://graph.facebook.com/v18.0/${igUserId}/media_publish?${params.toString()}`,
-      {
-        method: 'POST',
+    for (let i = 0; i < retries; i++) {
+      const response = await fetch(
+        `https://graph.facebook.com/v21.0/${igUserId}/media_publish?${params.toString()}`,
+        {
+          method: 'POST',
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorData;
+        try {
+          errorData = JSON.parse(errorText);
+        } catch (e) { }
+
+        // Error 2207027: The media is not ready for publishing, please wait for a moment
+        if (errorData?.error?.error_subcode === 2207027 && i < retries - 1) {
+          await new Promise(resolve => setTimeout(resolve, 5000));
+          continue;
+        }
+
+        throw new Error(`Instagram publish failed: ${errorText}`);
       }
-    );
 
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Instagram publish failed: ${error}`);
+      return response.json();
     }
-
-    return response.json();
   }
 
   /**
-   * Wait for video processing to complete
+   * Wait for media processing to complete
    */
-  private async waitForVideoProcessing(
+  private async waitForMediaProcessing(
     containerId: string,
     accessToken: string,
     maxAttempts: number = 30
   ): Promise<void> {
     for (let i = 0; i < maxAttempts; i++) {
-      const response = await fetch(
-        `https://graph.facebook.com/v18.0/${containerId}?fields=status_code&access_token=${accessToken}`
-      );
-      const data = await response.json();
-
-      if (data.status_code === 'FINISHED') {
-        return;
-      } else if (data.status_code === 'ERROR') {
-        throw new Error('Video processing failed');
+      let response;
+      try {
+        response = await fetch(
+          `https://graph.facebook.com/v21.0/${containerId}?fields=status_code&access_token=${accessToken}`
+        );
+      } catch (err) {
+        // network error, let's keep waiting
       }
 
-      // Wait 2 seconds before checking again
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      if (response && response.ok) {
+        const data = await response.json();
+
+        if (data.status_code === 'FINISHED') {
+          return;
+        } else if (data.status_code === 'ERROR') {
+          throw new Error('Media processing failed');
+        } else if (!data.status_code) {
+          // Status code might not be present for generic images or some types, so return and check publishing.
+          return;
+        }
+      }
+
+      // Wait 3 seconds before checking again
+      await new Promise(resolve => setTimeout(resolve, 3000));
     }
 
-    throw new Error('Video processing timeout');
+    throw new Error('Media processing timeout');
   }
 
   override async post(
@@ -218,39 +257,59 @@ export class InstagramPlugin extends BaseSchedulerPlugin {
       const { content, settings, postFormat, comments: postComments } = this.getPlatformData(postDetails);
       const caption = content || '';
 
-      // Determine media type
-      const hasVideo = postDetails.assets.some((asset: Asset) => asset.mimeType.includes('video'));
-      const hasImage = postDetails.assets.some((asset: Asset) => asset.mimeType.includes('image'));
       const isStory = postFormat === 'story' || settings?.post_type === 'story';
 
-      const firstAsset = postDetails.assets[0];
-      const isVideoStory = isStory && firstAsset?.mimeType.includes('video');
-
       let containerId: string;
+      let lastPublishedData: any = null;
 
-      if (isStory && !hasVideo && firstAsset) {
-        containerId = await this.createContainer(
-          igUserId,
-          firstAsset.url,
-          caption,
-          'STORIES',
-          socialMediaAccount.accessToken
-        );
-      } else if (postDetails.assets.length > 1 && !hasVideo) {
-        // Carousel post (multiple images)
+      if (isStory) {
+        for (const asset of postDetails.assets) {
+          const cid = await this.createContainer(
+            igUserId,
+            asset.url,
+            asset.originalName, // stories caption doesn't map directly to media caption
+            'STORIES',
+            socialMediaAccount.accessToken,
+            undefined,
+            settings
+          );
+
+          await this.waitForMediaProcessing(cid, socialMediaAccount.accessToken);
+
+          lastPublishedData = await this.publishContainer(
+            igUserId,
+            cid,
+            socialMediaAccount.accessToken
+          );
+        }
+
+        const postResponse: PostResponse = {
+          id: postDetails.id,
+          postId: lastPublishedData.id,
+          releaseURL: `https://www.instagram.com/p/${lastPublishedData.id}/`,
+          status: 'published',
+        };
+        this.emit('instagram:post:published', { postId: postResponse.postId, response: lastPublishedData });
+        return postResponse;
+      } else if (postDetails.assets.length > 1) {
+        // Carousel post (multiple images or mixed)
         const childContainers: string[] = [];
 
         for (const asset of postDetails.assets.slice(0, 10)) {
-          if (asset.mimeType.includes('image')) {
-            const childId = await this.createContainer(
-              igUserId,
-              asset.url,
-              asset.originalName,
-              'IMAGE',
-              socialMediaAccount.accessToken
-            );
-            childContainers.push(childId);
-          }
+          const mediaType = asset.mimeType.includes('video') ? 'VIDEO' : 'IMAGE';
+          const childId = await this.createContainer(
+            igUserId,
+            asset.url,
+            '', // Provide empty string for children caption
+            mediaType,
+            socialMediaAccount.accessToken,
+            undefined,
+            settings,
+            true // isCarouselItem
+          );
+
+          await this.waitForMediaProcessing(childId, socialMediaAccount.accessToken);
+          childContainers.push(childId);
         }
 
         containerId = await this.createContainer(
@@ -259,53 +318,52 @@ export class InstagramPlugin extends BaseSchedulerPlugin {
           caption,
           'CAROUSEL',
           socialMediaAccount.accessToken,
-          childContainers
+          childContainers,
+          settings
         );
-      } else if (hasVideo) {
-        // Single video post (Reel)
-        const videoAsset = postDetails.assets.find((asset: Asset) => asset.mimeType.includes('video'));
-        if (!videoAsset) {
-          throw new Error('Video asset not found');
+      } else {
+        // Single image or video post
+        const asset = postDetails.assets[0];
+        if (!asset) {
+          throw new Error('No asset found for post');
         }
 
-        containerId = await this.createContainer(
-          igUserId,
-          videoAsset.url,
-          caption,
-          'VIDEO',
-          socialMediaAccount.accessToken
-        );
 
-        // Wait for video processing
-        await this.waitForVideoProcessing(containerId, socialMediaAccount.accessToken);
-      } else {
-        // Single image post
-        const imageAsset = postDetails.assets[0];
+        const isVid = asset.mimeType.includes('video');
+        const mediaType = isVid ? 'REELS' : 'IMAGE';
+
         containerId = await this.createContainer(
           igUserId,
-          imageAsset?.url || '',
+          asset.url,
           caption,
-          'IMAGE',
-          socialMediaAccount.accessToken
+          mediaType,
+          socialMediaAccount.accessToken,
+          undefined,
+          settings
         );
       }
 
-      // Publish the container
-      const publishedData = await this.publishContainer(
-        igUserId,
-        containerId,
-        socialMediaAccount.accessToken
-      );
+      if (!isStory) {
+        await this.waitForMediaProcessing(containerId, socialMediaAccount.accessToken);
 
-      const postResponse: PostResponse = {
-        id: postDetails.id,
-        postId: publishedData.id,
-        releaseURL: `https://www.instagram.com/p/${publishedData.id}/`,
-        status: 'published',
-      };
+        const publishedData = await this.publishContainer(
+          igUserId,
+          containerId,
+          socialMediaAccount.accessToken
+        );
 
-      this.emit('instagram:post:published', { postId: postResponse.postId, response: publishedData });
-      return postResponse;
+        const postResponse: PostResponse = {
+          id: postDetails.id,
+          postId: publishedData.id,
+          releaseURL: `https://www.instagram.com/p/${publishedData.id}/`,
+          status: 'published',
+        };
+
+        this.emit('instagram:post:published', { postId: postResponse.postId, response: publishedData });
+        return postResponse;
+      }
+
+      throw new Error('Unknown posting error');
     } catch (error: unknown) {
       this.logPluginEvent('post-error', 'failure', `Error: ${(error as Error).message}`, postDetails.id, {
         error: `${error}`,
@@ -347,7 +405,7 @@ export class InstagramPlugin extends BaseSchedulerPlugin {
       caption: content || '',
     });
 
-    const response = await fetch(`https://graph.facebook.com/v18.0/${publishedPostId}?${params.toString()}`, {
+    const response = await fetch(`https://graph.facebook.com/v21.0/${publishedPostId}?${params.toString()}`, {
       method: 'POST',
     });
 
@@ -412,7 +470,7 @@ export class InstagramPlugin extends BaseSchedulerPlugin {
       });
 
       const response = await fetch(
-        `https://graph.facebook.com/v18.0/${postId}/comments?${params.toString()}`,
+        `https://graph.facebook.com/v21.0/${postId}/comments?${params.toString()}`,
         {
           method: 'POST',
         }

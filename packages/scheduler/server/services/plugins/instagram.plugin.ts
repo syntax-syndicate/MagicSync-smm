@@ -155,6 +155,7 @@ export class InstagramPlugin extends BaseSchedulerPlugin {
     }
 
     const data = await response.json();
+    log.info('instagram', `Container created: ${JSON.stringify(data)}`)
     return data.id;
   }
 
@@ -243,7 +244,9 @@ export class InstagramPlugin extends BaseSchedulerPlugin {
     comments: PostWithAllData[],
     socialMediaAccount: SocialMediaAccount
   ): Promise<PostResponse> {
+    log.info('instagram', 'Instagram post started')
     try {
+      log.info('instagram', `Post details: ${JSON.stringify(postDetails)}`)
       const igUserId = socialMediaAccount.accountId;
 
       if (!igUserId) {
@@ -259,6 +262,7 @@ export class InstagramPlugin extends BaseSchedulerPlugin {
 
       const isStory = postFormat === 'story' || settings?.post_type === 'story';
 
+      log.info('instagram', `Is story: ${isStory}`)
       let containerId: string;
       let lastPublishedData: any = null;
 
@@ -323,6 +327,9 @@ export class InstagramPlugin extends BaseSchedulerPlugin {
         );
       } else {
         // Single image or video post
+        log.info('instagram', 'Regular post')
+
+
         const asset = postDetails.assets[0];
         if (!asset) {
           throw new Error('No asset found for post');
@@ -342,6 +349,7 @@ export class InstagramPlugin extends BaseSchedulerPlugin {
           settings
         );
       }
+      log.info('instagram', `Container ID: ${containerId}`)
 
       if (!isStory) {
         await this.waitForMediaProcessing(containerId, socialMediaAccount.accessToken);
@@ -365,6 +373,8 @@ export class InstagramPlugin extends BaseSchedulerPlugin {
 
       throw new Error('Unknown posting error');
     } catch (error: unknown) {
+      log.error('instagram', `Instagram post failed: ${(error as Error).message}`)
+
       this.logPluginEvent('post-error', 'failure', `Error: ${(error as Error).message}`, postDetails.id, {
         error: `${error}`,
       });

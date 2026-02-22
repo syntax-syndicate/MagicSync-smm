@@ -95,6 +95,28 @@
       "step4_after": "Brand identity established",
       "step5_text": "Finalizing details...",
       "step5_after": "Details finalized"
+    },
+    "step_zero": {
+      "title": "Get Started",
+      "subtitle": "Complete these optional setup steps to get the most out of your business management.",
+      "progress": "{completed} of {total} completed",
+      "continue": "Continue to Business Creation",
+      "skip": "Skip Setup",
+      "skip_hint": "You can always complete these steps later in your settings.",
+      "actions": {
+        "star_github": "Star our GitHub Repository",
+        "star_github_desc": "Support our project by starring our repository",
+        "follow_twitter": "Follow us on Twitter",
+        "follow_twitter_desc": "Stay updated with our latest news and updates",
+        "follow_linkedin": "Follow us on LinkedIn",
+        "follow_linkedin_desc": "Connect with us for professional updates",
+        "follow_bluesky": "Follow us on Bluesky",
+        "follow_bluesky_desc": "Join us on the decentralized social network",
+        "follow_instagram": "Follow us on Instagram",
+        "follow_instagram_desc": "See our visual content and behind-the-scenes",
+        "follow_facebook": "Follow us on Facebook",
+        "follow_facebook_desc": "Join our community and stay connected"
+      }
     }
   },
   "fr": {

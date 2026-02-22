@@ -1,4 +1,4 @@
-import { generateObject } from 'ai';
+import { generateObject, generateText, tool } from 'ai';
 import { google } from '@ai-sdk/google';
 import { z } from 'zod';
 import { checkUserIsLogin } from "#layers/BaseAuth/server/utils/AuthHelpers";
@@ -17,7 +17,7 @@ const brandDetailsSchema = z.object({
   metadata: z.record(z.string(), z.any()).optional(),
 }).passthrough();
 
-const responseSchema = z.object({
+export const informationSchemaBusinessResponse = z.object({
   businessProfile: z.object({
     name: z.string(),
     description: z.string().optional(),
@@ -29,6 +29,7 @@ const responseSchema = z.object({
   companyInformation: z.string().describe('Detailed company information in Markdown format as a research report.'),
   brandDetails: brandDetailsSchema.describe('Brand details extracted from the website in JSON format.')
 });
+export type InformationSchemaBusinessResponse = z.infer<typeof informationSchemaBusinessResponse>;
 
 const requestSchema = z.object({
   url: z.string().url(),
@@ -79,14 +80,44 @@ We need 3 things from you:
 4. 'competitors': A list of competitors and their URLs base on the content of the website.
 WEBSITE:
 ${url}
+RETURN VALUE NEED TO BE Object base on the following schema:
+---
+      const brandDetailsSchema = z.object({
+        colorScheme: z.string(),
+        colors: z.record(z.string(), z.string()),
+        typography: z.record(z.string(), z.any()).optional(),
+        spacing: z.record(z.string(), z.any()).optional(),
+        components: z.record(z.string(), z.any()).optional(),
+        images: z.record(z.string(), z.any()).optional(),
+        personality: z.record(z.string(), z.any()).optional(),
+        designSystem: z.record(z.string(), z.any()).optional(),
+        metadata: z.record(z.string(), z.any()).optional(),
+      }).passthrough();
+
+      export const informationSchemaBusinessResponse = z.object({
+        businessProfile: z.object({
+          name: z.string(),
+          description: z.string().optional(),
+          address: z.string().optional(),
+          phone: z.string().optional(),
+          website: z.string().optional(),
+          category: z.string().optional(),
+        }),
+        companyInformation: z.string().describe('Detailed company information in Markdown format as a research report.'),
+        brandDetails: brandDetailsSchema.describe('Brand details extracted from the website in JSON format.')
+      });
+---
 `;
 
-      const { object } = await generateObject({
+      const object = await generateText({
         model: google('gemini-3-flash-preview'),
-        schema: responseSchema,
         system: systemPrompt,
         prompt: 'Generate the structured business extraction object.',
-        temperature: 0.4,
+        temperature: 2,
+        tools: {
+          url_context: google.tools.urlContext({}),
+          google_search: google.tools.googleSearch({}),
+        }
       });
 
       return object;

@@ -118,79 +118,45 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <Transition
-    enter-active-class="transition-opacity duration-300"
-    enter-from-class="opacity-0"
-    enter-to-class="opacity-100"
-    leave-active-class="transition-opacity duration-300"
-    leave-from-class="opacity-100"
-    leave-to-class="opacity-0"
-  >
-    <div
-      v-if="loading && steps.length > 0"
-      class="flex w-full items-center justify-center p-8 overflow-hidden"
-    >
+  <Transition enter-active-class="transition-opacity duration-300" enter-from-class="opacity-0"
+    enter-to-class="opacity-100" leave-active-class="transition-opacity duration-300" leave-from-class="opacity-100"
+    leave-to-class="opacity-0">
+    <div v-if="loading && steps.length > 0" class="flex w-full items-center justify-center p-8 overflow-hidden">
       <div class="relative w-full max-w-sm h-64 overflow-hidden">
         <div class="relative flex flex-col justify-start w-full transform -translate-y-4">
-          <div
-            v-for="(step, index) in steps"
-            :key="index"
-          >
-            <div
-              v-if="step"
-              class="mb-4 flex items-center gap-4 text-left transition-all duration-300 ease-in-out"
+          <div v-for="(step, index) in steps" :key="index">
+            <div v-if="step" class="mb-4 flex items-center gap-4 text-left transition-all duration-300 ease-in-out"
               :style="{
                 opacity:
                   index === currentState
                     ? 1
                     : Math.max(1 - Math.abs(index - currentState) * 0.2, 0),
-                transform: `translateY(${
-                  index === currentState ? -(currentState * 50) : -(currentState * 50)
-                }px)`,
-              }"
-            >
-              <UIcon
-                v-if="
-                  index < currentState ||
-                  (index === steps.length - 1 && index === currentState && isLastStepComplete)
-                "
-                name="i-heroicons-check-circle-solid"
-                class="text-primary size-7 shrink-0"
-              />
-              <UIcon
-                v-else-if="
-                  index === currentState && (!isLastStepComplete || index !== steps.length - 1)
-                "
-                name="i-heroicons-arrow-path"
-                class="text-primary size-7 shrink-0 animate-spin"
-              />
-              <UIcon
-                v-else
-                name="i-heroicons-check-circle"
-                class="size-7 shrink-0 text-black opacity-30 dark:text-white"
-              />
+                transform: `translateY(${index === currentState ? -(currentState * 50) : -(currentState * 50)
+                  }px)`,
+              }">
+              <UIcon v-if="
+                index < currentState ||
+                (index === steps.length - 1 && index === currentState && isLastStepComplete)
+              " name="i-heroicons-check-circle-solid" class="text-primary size-7 shrink-0" />
+              <UIcon v-else-if="
+                index === currentState && (!isLastStepComplete || index !== steps.length - 1)
+              " name="i-heroicons-arrow-path" class="text-primary size-7 shrink-0 animate-spin" />
+              <UIcon v-else name="i-heroicons-check-circle"
+                class="size-7 shrink-0 text-black opacity-30 dark:text-white" />
               <div class="flex flex-col">
-                <span
-                  class="text-lg font-medium text-black dark:text-white"
-                  :class="[index > currentState && 'opacity-50']"
-                >
+                <span class="text-lg font-medium text-black dark:text-white"
+                  :class="[index > currentState && 'opacity-50']">
                   {{ step.text }}
                 </span>
-                <Transition
-                  enter-active-class="transition-all duration-300"
-                  enter-from-class="opacity-0 -translate-y-1"
-                  enter-to-class="opacity-100 translate-y-0"
-                >
-                  <span
-                    v-if="
-                      step.afterText &&
-                      (index < currentState ||
-                        (index === steps.length - 1 &&
-                          index === currentState &&
-                          isLastStepComplete))
-                    "
-                    class="mt-1 text-sm text-gray-500 dark:text-gray-400"
-                  >
+                <Transition enter-active-class="transition-all duration-300" enter-from-class="opacity-0 -translate-y-1"
+                  enter-to-class="opacity-100 translate-y-0">
+                  <span v-if="
+                    step.afterText &&
+                    (index < currentState ||
+                      (index === steps.length - 1 &&
+                        index === currentState &&
+                        isLastStepComplete))
+                  " class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                     {{ step.afterText }}
                   </span>
                 </Transition>

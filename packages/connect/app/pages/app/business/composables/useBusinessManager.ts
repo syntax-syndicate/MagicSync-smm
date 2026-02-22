@@ -1,4 +1,5 @@
 import type { BusinessProfile, CreateBusinessProfileData } from '#layers/BaseDB/db/schema';
+import type { InformationSchemaBusinessResponse } from '#layers/BaseScheduler/server/api/v1/ai/information/index.post';
 import { ref } from 'vue';
 
 
@@ -43,7 +44,7 @@ export const useBusinessManager = () => {
 
   const extractBusinessInfo = async (payload: { url: string; explanation: string; competitors?: string[] }) => {
     try {
-      const result = await $fetch<any>('/api/v1/ai/information', {
+      const result = await $fetch<InformationSchemaBusinessResponse>('/api/v1/ai/information', {
         method: 'POST',
         body: payload
       });

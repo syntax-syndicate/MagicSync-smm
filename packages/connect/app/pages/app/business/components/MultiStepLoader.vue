@@ -121,9 +121,9 @@ onUnmounted(() => {
   <Transition enter-active-class="transition-opacity duration-300" enter-from-class="opacity-0"
     enter-to-class="opacity-100" leave-active-class="transition-opacity duration-300" leave-from-class="opacity-100"
     leave-to-class="opacity-0">
-    <div v-if="loading && steps.length > 0" class="flex w-full items-center justify-center p-8 overflow-hidden">
-      <div class="relative w-full max-w-sm h-64 overflow-hidden">
-        <div class="relative flex flex-col justify-start w-full transform -translate-y-4">
+    <div v-if="loading && steps.length > 0" class="flex w-full h-full items-center justify-center p-8 ">
+      <div class="relative w-full grid grid-cols-1 content-center max-w-sm  overflow-hidden">
+        <div class="relative grid grid-cols-1 content-center transform ">
           <div v-for="(step, index) in steps" :key="index">
             <div v-if="step" class="mb-4 flex items-center gap-4 text-left transition-all duration-300 ease-in-out"
               :style="{

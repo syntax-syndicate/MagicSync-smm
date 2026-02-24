@@ -13,7 +13,7 @@ const updateCompanyInformation = (value: string) => {
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6 min-h-[500px] grid grid-cols-1 content-start">
     <!-- Info Banner -->
     <div
       class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex gap-3 text-sm text-gray-600 dark:text-gray-300">

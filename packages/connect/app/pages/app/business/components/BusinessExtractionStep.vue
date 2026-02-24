@@ -68,7 +68,8 @@ const handleSkip = () => {
 </script>
 
 <template>
-  <div class="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-lg mx-auto w-full">
+  <div
+    class="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-lg mx-auto w-full min-h-[500px] grid grid-cols-1 content-center">
     <div class="mb-8">
       <h2 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight mb-2">
         {{ t('wizard.title') }}
@@ -101,7 +102,7 @@ const handleSkip = () => {
           <UFormField :name="`competitors.${i}`" class="flex-1 mb-0">
             <UInput :model-value="extractionState.competitors?.[i] || ''"
               @update:model-value="updateCompetitor(i, $event)"
-              :placeholder="t('wizard.website_url_desc') || 'competitor.com'" size="lg" />
+              :placeholder="t('wizard.website_url_desc') || 'competitor.com'" size="lg" class="w-full" />
           </UFormField>
           <UButton v-if="(extractionState.competitors?.length || 0) > 1" icon="lucide:x" color="neutral" variant="ghost"
             @click="removeCompetitor(i)" :padded="false"
@@ -118,11 +119,11 @@ const handleSkip = () => {
         <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
           {{ t('wizard.channels') }} <span class="text-gray-400 font-normal">{{ t('wizard.optional') }}</span>
         </label>
-        <div class="flex flex-wrap gap-2">
+        <div class="flex flex-wrap gap-2 my-4">
           <UButton v-for="channel in availableChannels" :key="channel"
             :color="extractionState.channels?.includes(channel) ? 'primary' : 'neutral'"
-            :variant="extractionState.channels?.includes(channel) ? 'solid' : 'outline'" size="sm"
-            @click="toggleChannel(channel)" class="transition-all duration-200">
+            :variant="extractionState.channels?.includes(channel) ? 'solid' : 'outline'" @click="toggleChannel(channel)"
+            class="transition-all duration-200">
             {{ channel }}
           </UButton>
         </div>

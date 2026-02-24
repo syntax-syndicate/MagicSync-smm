@@ -17,7 +17,6 @@ const { addBusiness, extractBusinessInfo } = useBusinessManager()
 const toast = useToast()
 
 const step = ref<0 | 1 | 2 | 3>(0)
-const loadingModalVisible = ref(false)
 
 // Step 1 State
 const extractionSchema = z.object({
@@ -105,6 +104,21 @@ const submitFinalForm = async (payload: any) => {
 };
 
 const skipExtraction = () => {
+  responseResult.value = {
+    brandDetails: {
+      colorScheme: '{}',
+      colors: {},
+    },
+    companyInformation: "",
+    businessProfile: {
+      address: "",
+      category: "",
+      description: "",
+      name: "",
+      phone: "",
+      website: ""
+    },
+  };
   step.value = 3;
 };
 
@@ -123,7 +137,7 @@ const handleCancel = () => {
 </script>
 
 <template>
-  <UModal v-model:open="modalOpen" @close="handleCancel" :ui="{ content: 'min-w-5xl' }">
+  <UModal v-model:open="modalOpen" @close="handleCancel" :dismissible="false" :ui="{ content: 'min-w-5xl' }">
     <!-- Trigger Button -->
     <UButton variant="ghost"
       class="flex flex-col items-center justify-center gap-4 w-full h-full min-h-[16rem] rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-primary-500 hover:bg-gray-50 dark:hover:border-primary-500 dark:hover:bg-gray-800/50 transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900">
@@ -139,18 +153,9 @@ const handleCancel = () => {
 
     <template #content>
       <UCard class="w-full h-full min-w-5xl">
-        <div v-if="step !== 0"
-          class="border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-white dark:bg-gray-900 sticky top-0 z-10">
-          <div>
-            <p class="text-sm text-gray-500 mt-1">
-              {{ step === 1 ? t('wizard.subtitle_step1') : step === 2 ? t('wizard.subtitle_step2') :
-                t('wizard.subtitle_step3') }}
-            </p>
-          </div>
+        <div class="flex items-center justify-end  sticky top-0 z-10">
           <div class="flex items-center gap-2">
-            <UButton v-if="step === 3" icon="lucide:arrow-left" color="neutral" variant="ghost" @click="step = 1"
-              title="Back to Extraction" />
-            <UButton icon="lucide:x" color="neutral" variant="ghost" @click="modalOpen = false" title="Close" />
+            <UButton icon="lucide:x" color="neutral" variant="ghost" @click="handleCancel" title="Close" />
           </div>
         </div>
 

@@ -13,7 +13,7 @@ const updateBrandDetails = (value: string) => {
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6 min-h-[500px] grid grid-cols-1 content-center">
     <!-- Info Banner -->
     <div
       class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex gap-3 text-sm text-gray-600 dark:text-gray-300">
@@ -22,9 +22,9 @@ const updateBrandDetails = (value: string) => {
     </div>
 
     <!-- Brand Identity Textarea -->
-    <UFormField :label="t('brand_identity.label')" name="brandDetails">
+    <UFormField :label="t('brand_identity.label')" name="brandDetails" class="w-full">
       <UTextarea v-model="state.brandDetails" placeholder="{}" :rows="16"
-        class="font-mono text-xs md:text-sm tracking-tight shadow-inner bg-gray-50 dark:bg-gray-900 rounded-md py-3 px-4"
+        class="font-mono text-xs md:text-sm tracking-tight shadow-inner bg-gray-50 dark:bg-gray-900 rounded-md py-3 px-4 w-full"
         autoresize />
     </UFormField>
   </div>

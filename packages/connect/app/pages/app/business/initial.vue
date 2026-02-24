@@ -40,7 +40,7 @@ const HandleSelect = (id: string) => {
 <template>
   <div>
     <BasePageHeader :title="t('title_initial')" :description="t('description_initial')" />
-    <div class="grid grid-cols-5 gap-2 p-2 mt-6">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 p-2 mt-6">
       <AddBusiness />
       <BusinessCard v-for="business in businesses.data" :key="business.id" :business="business"
         @select="HandleSelect" />

@@ -71,7 +71,7 @@ const handleCancel = () => {
 </script>
 
 <template>
-  <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
+  <div class="animate-in fade-in slide-in-from-bottom-4 duration-500 min-h-[500px] grid grid-cols-1 content-center">
     <UForm :schema="schema" :state="state.businessDetails" @submit="handleSubmit" class="space-y-6">
       <!-- Enhanced Tab System -->
       <BusinessTabs v-model="selectedTab" :tabs="tabs">

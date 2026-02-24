@@ -36,7 +36,7 @@ const HandleSetActive = async (id: string) => {
 </script>
 
 <template>
-  <UCard variant="soft" class="cursor-pointer size-56"
+  <UCard variant="soft" class="cursor-pointer w-full h-full min-h-[16rem] rounded-2xl"
     :ui="{ header: 'p-0 sm:p-2', footer: 'p-0 sm:p-2', body: 'p-0 sm:p-0 h-full', root: 'p-0' }">
     <div class="relative  h-full">
       <section class="flex justify-end z-50 absolute top-2 right-2 ">

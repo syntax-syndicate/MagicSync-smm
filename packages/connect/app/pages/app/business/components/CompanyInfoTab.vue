@@ -23,8 +23,8 @@ const updateCompanyInformation = (value: string) => {
 
     <!-- Company Information Editor -->
     <UFormField :label="t('company_info.label')" name="companyInformation">
-      <UEditor v-model="state.companyInformation" :placeholder="t('company_info.placeholder')" :rows="16"
-        class="font-mono text-xs md:text-sm shadow-inner bg-gray-50 dark:bg-gray-900 rounded-md py-3 px-4" />
+      <UEditor v-model="state.companyInformation" content-type="markdown" :placeholder="t('company_info.placeholder')"
+        :rows="16" class="font-mono text-xs md:text-sm shadow-inner bg-gray-50 dark:bg-gray-900 rounded-md py-3 px-4" />
     </UFormField>
   </div>
 </template>

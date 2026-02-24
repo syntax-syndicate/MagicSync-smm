@@ -63,6 +63,8 @@ export default defineLazyEventHandler(async () => {
     const { url, explanation, competitors } = validation.data;
 
     try {
+      const content = await scrapeWebsite(url);
+
       const systemPrompt = `
 You are an expert business researcher and competitive analyst. Your goal is to extract detailed information about a business from its website and format it for our system.
 The user needs this website to get all the information related to the user business for:
@@ -80,44 +82,18 @@ We need 3 things from you:
 4. 'competitors': A list of competitors and their URLs base on the content of the website.
 WEBSITE:
 ${url}
-RETURN VALUE NEED TO BE Object base on the following schema:
----
-      const brandDetailsSchema = z.object({
-        colorScheme: z.string(),
-        colors: z.record(z.string(), z.string()),
-        typography: z.record(z.string(), z.any()).optional(),
-        spacing: z.record(z.string(), z.any()).optional(),
-        components: z.record(z.string(), z.any()).optional(),
-        images: z.record(z.string(), z.any()).optional(),
-        personality: z.record(z.string(), z.any()).optional(),
-        designSystem: z.record(z.string(), z.any()).optional(),
-        metadata: z.record(z.string(), z.any()).optional(),
-      }).passthrough();
 
-      export const informationSchemaBusinessResponse = z.object({
-        businessProfile: z.object({
-          name: z.string(),
-          description: z.string().optional(),
-          address: z.string().optional(),
-          phone: z.string().optional(),
-          website: z.string().optional(),
-          category: z.string().optional(),
-        }),
-        companyInformation: z.string().describe('Detailed company information in Markdown format as a research report.'),
-        brandDetails: brandDetailsSchema.describe('Brand details extracted from the website in JSON format.')
-      });
----
+WEBSITE CONTENT:
+${explanation}
+
 `;
 
-      const object = await generateText({
+      const { object } = await generateObject({
         model: google('gemini-3-flash-preview'),
         system: systemPrompt,
+        schema: informationSchemaBusinessResponse,
         prompt: 'Generate the structured business extraction object.',
         temperature: 2,
-        tools: {
-          url_context: google.tools.urlContext({}),
-          google_search: google.tools.googleSearch({}),
-        }
       });
 
       return object;

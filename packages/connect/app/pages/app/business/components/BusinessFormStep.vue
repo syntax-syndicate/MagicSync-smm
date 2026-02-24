@@ -11,9 +11,10 @@ import CompanyInfoTab from './CompanyInfoTab.vue'
 import BrandIdentityTab from './BrandIdentityTab.vue'
 import type { InformationSchemaBusinessResponse } from '#layers/BaseScheduler/server/api/v1/ai/information/index.post'
 import { useBusinessFormProvider, BusinessFormProviderKey } from '../composables/useBusinessFormProvider'
+import type { BodySchemaCreateBusinessType } from '#layers/BaseConnect/server/api/v1/business/index.post'
 
 const emit = defineEmits<{
-  submit: [payload: FormSubmitEvent<BusinessForm>],
+  submit: [BodySchemaCreateBusinessType],
   cancel: []
 }>()
 
@@ -51,18 +52,21 @@ const handleSubmit = (payload: FormSubmitEvent<BusinessForm>) => {
   const formData = actions.getFormData()
 
   // Combine business details with company info and brand details
-  const finalPayload = {
+  const finalPayload: BodySchemaCreateBusinessType = {
     name: formData.businessDetails.name || '',
     description: formData.businessDetails.description || '',
     phone: formData.businessDetails.phone || '',
     address: formData.businessDetails.address || '',
     website: formData.businessDetails.website || '',
     category: formData.businessDetails.category || '',
-    companyInformation: formData.companyInformation,
-    brandDetails: formData.brandDetails
+    entityDetails: {
+      companyInformation: formData.companyInformation,
+      brandDetails: formData.brandDetails,
+      channels: []
+    },
   }
 
-  emit('submit', { ...payload, data: finalPayload })
+  emit('submit', finalPayload)
 }
 
 const handleCancel = () => {

@@ -2,13 +2,13 @@
 <script lang="ts" setup>
 import type { FormSubmitEvent } from '@nuxt/ui'
 import z from 'zod'
-import { CreateBusinessProfileSchema } from '#layers/BaseDB/db/schema'
 import { useBusinessManager } from '../composables/useBusinessManager'
 import StepZero from './StepZero.vue'
 import BusinessExtractionStep from './BusinessExtractionStep.vue'
 import BusinessFormStep from './BusinessFormStep.vue'
 import BusinessLoadingStep from './BusinessLoadingStep.vue'
 import type { InformationSchemaBusinessResponse } from '#layers/BaseScheduler/server/api/v1/ai/information/index.post'
+import type { BodySchemaCreateBusinessType } from '#layers/BaseConnect/server/api/v1/business/index.post'
 
 const emit = defineEmits(['add', 'cancel'])
 const { t } = useI18n()
@@ -76,7 +76,7 @@ const handleExtractionSubmit = async (payload: FormSubmitEvent<ExtractionForm>) 
   }
 };
 
-const submitFinalForm = async (payload: any) => {
+const submitFinalForm = async (payload: BodySchemaCreateBusinessType) => {
   try {
 
     await addBusiness(payload);
@@ -137,7 +137,8 @@ const handleCancel = () => {
 </script>
 
 <template>
-  <UModal v-model:open="modalOpen" @close="handleCancel" :dismissible="false" :ui="{ content: 'min-w-5xl' }">
+  <UModal v-model:open="modalOpen" @close="handleCancel" :dismissible="false"
+    :ui="{ content: 'min-w-5xl overflow-y-auto' }">
     <!-- Trigger Button -->
     <UButton variant="ghost"
       class="flex flex-col items-center justify-center gap-4 w-full h-full min-h-[16rem] rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-primary-500 hover:bg-gray-50 dark:hover:border-primary-500 dark:hover:bg-gray-800/50 transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900">
@@ -152,7 +153,7 @@ const handleCancel = () => {
     </UButton>
 
     <template #content>
-      <UCard class="w-full h-full min-w-5xl">
+      <UCard class="w-full h-full min-w-5xl overflow-auto">
         <div class="flex items-center justify-end  sticky top-0 z-10">
           <div class="flex items-center gap-2">
             <UButton icon="lucide:x" color="neutral" variant="ghost" @click="handleCancel" title="Close" />

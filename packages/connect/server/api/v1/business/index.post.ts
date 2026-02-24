@@ -1,9 +1,8 @@
 import { businessProfileService } from '#layers/BaseDB/server/services/business-profile.service';
 import { checkUserIsLogin } from "#layers/BaseAuth/server/utils/AuthHelpers"
-import { CreateBusinessProfileSchema, businessProfiles } from '#layers/BaseDB/db/schema';
-import { entityDetails } from '#layers/BaseDB/db/entityDetails/entityDetails';
-import { useDrizzle } from '#layers/BaseDB/server/utils/drizzle';
+import { CreateBusinessProfileSchema, } from '#layers/BaseDB/db/schema';
 import { z } from 'zod';
+import { entityDetailsService } from '#layers/BaseDB/server/services/entity-details.service';
 
 const BodySchema = z.intersection(
   CreateBusinessProfileSchema,
@@ -15,7 +14,7 @@ const BodySchema = z.intersection(
     }).passthrough().optional()
   })
 );
-
+export type BodySchemaCreateBusinessType = z.infer<typeof BodySchema>;
 export default defineEventHandler(async (event) => {
   const user = await checkUserIsLogin(event);
 
@@ -32,13 +31,11 @@ export default defineEventHandler(async (event) => {
   });
 
   if (body.entityDetails && newBusiness.data) {
-    const db = useDrizzle();
-    await db.insert(entityDetails).values({
-      id: crypto.randomUUID(),
-      entityId: newBusiness.data.id,
+    const entityDetails = entityDetailsService.createDetails({
       entityType: 'business_details',
-      details: body.entityDetails as any
-    });
+      entityId: newBusiness.data.id,
+      details: JSON.stringify(body.entityDetails) as any,
+    })
   }
 
   return newBusiness;

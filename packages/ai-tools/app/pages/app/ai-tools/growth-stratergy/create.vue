@@ -267,7 +267,7 @@ useHead({
                   <div class="flex justify-between text-xs font-mono">
                     <span class="text-muted-foreground">{{
                       t('script.metrics.hookStrength')
-                    }}</span>
+                      }}</span>
                     <span>{{ hookHealth.metrics.hookStrength }}%</span>
                   </div>
                   <UProgress :value="hookHealth.metrics.hookStrength" size="xs" color="primary" />
@@ -284,7 +284,7 @@ useHead({
                   <div class="flex justify-between text-xs font-mono">
                     <span class="text-muted-foreground">{{
                       t('script.metrics.estRetention')
-                    }}</span>
+                      }}</span>
                     <span>{{ hookHealth.metrics.retention }}%</span>
                   </div>
                   <UProgress :value="hookHealth.metrics.retention" size="xs" color="primary" />
@@ -451,97 +451,100 @@ useHead({
       </div>
     </div>
 
-    <Teleport to="body">
-      <div v-if="isFocusMode"
-        class="fixed inset-0 z-50 bg-background flex flex-col items-center justify-center overflow-hidden">
+    <UModal v-model:open="isFocusMode" fullscreen>
+      <template #content>
         <div
-          class="absolute top-0 inset-x-0 p-6 flex justify-between items-center z-50 bg-linear-to-b from-background/90 to-transparent">
-          <div class="flex items-center gap-4">
-            <UButton icon="i-lucide-x" color="neutral" variant="ghost" size="lg" @click="exitFocusMode" />
-            <span class="text-sm font-bold uppercase tracking-widest text-muted-foreground">{{
-              t('record.focusMode') }}</span>
-          </div>
-          <div v-if="isRecording"
-            class="flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-600">
-            <div class="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
-            <span class="text-lg font-mono font-bold tabular-nums">{{ formatTime(timer) }}</span>
-          </div>
-        </div>
-
-        <div class="flex-1 relative w-full h-full flex items-center justify-center p-4 md:p-12 overflow-hidden">
+          class=" w-full h-full inset-0 z-50 bg-background flex flex-col items-center justify-center overflow-hidden">
           <div
-            :class="['relative bg-neutral-900 rounded-3xl overflow-hidden shadow-2xl border border-border transition-all duration-700', aspectRatio === '9:16' ? 'h-full aspect-9/16' : aspectRatio === '1:1' ? 'h-full aspect-square' : 'w-full max-w-6xl aspect-video']">
-            <video ref="videoRef" autoplay muted playsinline
-              class="absolute inset-0 w-full h-full object-cover opacity-30" />
+            class="absolute top-0 inset-x-0 p-6 flex justify-between items-center z-50 bg-linear-to-b from-background/90 to-transparent">
+            <div class="flex items-center gap-4">
+              <UButton icon="i-lucide-x" color="neutral" variant="ghost" size="lg" @click="exitFocusMode" />
+              <span class="text-sm font-bold uppercase tracking-widest text-muted-foreground">{{
+                t('record.focusMode') }}</span>
+            </div>
+            <div v-if="isRecording"
+              class="flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-600">
+              <div class="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
+              <span class="text-lg font-mono font-bold tabular-nums">{{ formatTime(timer) }}</span>
+            </div>
+          </div>
 
-            <div v-if="words.length > 0"
-              class="absolute inset-0 z-10 flex flex-col items-center justify-center p-8 text-center bg-black/40">
-              <transition-group name="word" tag="div"
-                :class="['font-sans font-extrabold leading-tight tracking-tight flex flex-wrap justify-center gap-x-4 gap-y-2 select-none', aspectRatio === '9:16' ? 'text-4xl' : 'text-5xl md:text-7xl']">
-                <span v-for="(word, idx) in currentLine" :key="idx" :class="[
-                  'transition-all duration-300',
-                  Number(idx) === Number(currentWordIndex) % WORDS_PER_LINE ? 'text-primary scale-110 drop-shadow-[0_0_20px_rgba(var(--color-primary-500),0.5)]' : Number(idx) < Number(currentWordIndex) % WORDS_PER_LINE ? 'text-white/20' : 'text-white'
-                ]">
-                  {{ word }}
-                </span>
-              </transition-group>
-              <div v-if="nextLine.length" class="absolute bottom-12 inset-x-0 flex justify-center opacity-40">
-                <p
-                  :class="['text-white/80 font-medium tracking-wide bg-white/5 px-6 py-2 rounded-full backdrop-blur-sm truncate max-w-[80%]', aspectRatio === '9:16' ? 'text-lg' : 'text-2xl']">
-                  Next: {{ nextLine.join(' ') }}
-                </p>
+          <div class="flex-1 relative w-full h-full flex items-center justify-center p-4 md:p-12 overflow-hidden">
+            <div
+              :class="['relative bg-neutral-900 rounded-3xl overflow-hidden shadow-2xl border border-border transition-all duration-700', aspectRatio === '9:16' ? 'h-full aspect-9/16' : aspectRatio === '1:1' ? 'h-full aspect-square' : 'w-full max-w-6xl aspect-video']">
+              <video ref="videoRef" autoplay muted playsinline
+                class="absolute inset-0 w-full h-full object-cover opacity-30" />
+
+              <div v-if="words.length > 0"
+                class="absolute inset-0 z-10 flex flex-col items-center justify-center p-8 text-center bg-black/40">
+                <transition-group name="word" tag="div"
+                  :class="['font-sans font-extrabold leading-tight tracking-tight flex flex-wrap justify-center gap-x-4 gap-y-2 select-none', aspectRatio === '9:16' ? 'text-4xl' : 'text-5xl md:text-7xl']">
+                  <span v-for="(word, idx) in currentLine" :key="idx" :class="[
+                    'transition-all duration-300',
+                    Number(idx) === Number(currentWordIndex) % WORDS_PER_LINE ? 'text-primary scale-110 drop-shadow-[0_0_20px_rgba(var(--color-primary-500),0.5)]' : Number(idx) < Number(currentWordIndex) % WORDS_PER_LINE ? 'text-white/20' : 'text-white'
+                  ]">
+                    {{ word }}
+                  </span>
+                </transition-group>
+                <div v-if="nextLine.length" class="absolute bottom-12 inset-x-0 flex justify-center opacity-40">
+                  <p
+                    :class="['text-white/80 font-medium tracking-wide bg-white/5 px-6 py-2 rounded-full backdrop-blur-sm truncate max-w-[80%]', aspectRatio === '9:16' ? 'text-lg' : 'text-2xl']">
+                    Next: {{ nextLine.join(' ') }}
+                  </p>
+                </div>
+              </div>
+              <div v-else
+                class="absolute inset-0 z-10 flex items-center justify-center text-white/50 font-mono text-sm">
+                {{ t('record.noScript') }}
               </div>
             </div>
-            <div v-else class="absolute inset-0 z-10 flex items-center justify-center text-white/50 font-mono text-sm">
-              {{ t('record.noScript') }}
-            </div>
           </div>
-        </div>
 
-        <div
-          class="absolute bottom-0 inset-x-0 p-8 flex flex-col items-center gap-6 z-50 bg-linear-to-t from-background via-background/80 to-transparent">
           <div
-            class="flex flex-col md:flex-row items-center gap-6 w-full max-w-2xl px-8 py-6 rounded-3xl bg-background/50 backdrop-blur-xl border border-border shadow-lg">
-            <div class="flex-1 w-full space-y-2">
-              <div class="flex justify-between text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
-                <span>{{ t('record.speed') }}</span>
-                <span>{{ speedMultiplier.toFixed(1) }}x</span>
+            class="absolute bottom-0 inset-x-0 p-8 flex flex-col items-center gap-6 z-50 bg-linear-to-t from-background via-background/80 to-transparent">
+            <div
+              class="flex flex-col md:flex-row items-center gap-6 w-full max-w-2xl px-8 py-6 rounded-3xl bg-background/50 backdrop-blur-xl border border-border shadow-lg">
+              <div class="flex-1 w-full space-y-2">
+                <div class="flex justify-between text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
+                  <span>{{ t('record.speed') }}</span>
+                  <span>{{ speedMultiplier.toFixed(1) }}x</span>
+                </div>
+                <USlider v-model="speedMultiplier" :min="0.5" :max="2.5" :step="0.1" color="primary" />
               </div>
-              <URange v-model="speedMultiplier" :min="0.5" :max="2.5" :step="0.1" color="primary" />
+
+              <div class="flex gap-2">
+                <UButton icon="i-lucide-chevron-up" color="neutral" variant="soft" size="lg" square
+                  :disabled="Number(currentWordIndex) < WORDS_PER_LINE"
+                  @click="currentWordIndex = Math.max(0, currentWordIndex - WORDS_PER_LINE)" />
+                <UButton icon="i-lucide-chevron-down" color="neutral" variant="soft" size="lg" square
+                  :disabled="currentLineIndex >= lines.length - 1"
+                  @click="currentWordIndex = Math.min(words.length - 1, currentWordIndex + WORDS_PER_LINE)" />
+                <UButton :icon="isAutoScroll ? 'i-lucide-pause' : 'i-lucide-play'"
+                  :color="isAutoScroll ? 'primary' : 'neutral'" variant="soft" size="lg" square :disabled="!isRecording"
+                  @click="isAutoScroll = !isAutoScroll" />
+              </div>
             </div>
 
-            <div class="flex gap-2">
-              <UButton icon="i-lucide-chevron-up" color="neutral" variant="soft" size="lg" square
-                :disabled="Number(currentWordIndex) < WORDS_PER_LINE"
-                @click="currentWordIndex = Math.max(0, currentWordIndex - WORDS_PER_LINE)" />
-              <UButton icon="i-lucide-chevron-down" color="neutral" variant="soft" size="lg" square
-                :disabled="currentLineIndex >= lines.length - 1"
-                @click="currentWordIndex = Math.min(words.length - 1, currentWordIndex + WORDS_PER_LINE)" />
-              <UButton :icon="isAutoScroll ? 'i-lucide-pause' : 'i-lucide-play'"
-                :color="isAutoScroll ? 'primary' : 'neutral'" variant="soft" size="lg" square :disabled="!isRecording"
-                @click="isAutoScroll = !isAutoScroll" />
+            <div class="relative group">
+              <div v-if="!isRecording"
+                class="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/30 transition-all scale-110" />
+              <UButton v-if="!isRecording" size="xl" color="primary" variant="solid"
+                class="rounded-full px-12 py-5 text-lg font-black uppercase tracking-[0.2em] shadow-2xl relative transition-transform active:scale-95"
+                @click="startRecording">
+                <UIcon name="i-lucide-video" class="mr-3" /> {{ t('record.startRecording')
+                }}
+              </UButton>
+              <UButton v-else size="xl" color="red" variant="solid"
+                class="rounded-full px-12 py-5 text-lg font-black uppercase tracking-[0.2em] shadow-2xl relative transition-transform active:scale-95 animate-pulse"
+                @click="stopRecording">
+                <UIcon name="i-lucide-square" class="mr-3" /> {{ t('record.stopRecording')
+                }}
+              </UButton>
             </div>
-          </div>
-
-          <div class="relative group">
-            <div v-if="!isRecording"
-              class="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/30 transition-all scale-110" />
-            <UButton v-if="!isRecording" size="xl" color="primary" variant="solid"
-              class="rounded-full px-12 py-5 text-lg font-black uppercase tracking-[0.2em] shadow-2xl relative transition-transform active:scale-95"
-              @click="startRecording">
-              <UIcon name="i-lucide-video" class="mr-3" /> {{ t('record.startRecording')
-              }}
-            </UButton>
-            <UButton v-else size="xl" color="red" variant="solid"
-              class="rounded-full px-12 py-5 text-lg font-black uppercase tracking-[0.2em] shadow-2xl relative transition-transform active:scale-95 animate-pulse"
-              @click="stopRecording">
-              <UIcon name="i-lucide-square" class="mr-3" /> {{ t('record.stopRecording')
-              }}
-            </UButton>
           </div>
         </div>
-      </div>
-    </Teleport>
+      </template>
+    </UModal>
   </div>
 </template>
 

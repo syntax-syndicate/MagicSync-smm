@@ -23,7 +23,7 @@ export default defineNuxtConfig({
   $meta: {
     name: 'BaseAITools',
   },
-  extends: ['@local-monorepo/db', '@local-monorepo/ui', '@local-monorepo/auth'],
+  extends: ['@local-monorepo/db', '@local-monorepo/ui', '@local-monorepo/auth', '@local-monorepo/tools'],
   modules: ['@nuxtjs/i18n', 'evlog/nuxt','comark/nuxt'],
   i18n: {
     vueI18n: join(currentDir, './translations/i18n.config.ts'),

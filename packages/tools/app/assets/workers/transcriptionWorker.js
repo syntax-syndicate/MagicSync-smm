@@ -107,7 +107,9 @@ self.onmessage = async (event) => {
 					progress: 10
 				})
 
-				const result = await transcriber(audio, {
+				const audioData = new Float32Array(audio)
+
+				const result = await transcriber(audioData, {
 					language: targetLanguage,
 					return_timestamps: true,
 					temperature: 0,

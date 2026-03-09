@@ -53,6 +53,7 @@ const {
   markAsPublished,
 } = useContentPipelineManagement()
 
+
 const videoRef = ref<HTMLVideoElement | null>(null)
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const mediaRecorderRef = ref<MediaRecorder | null>(null)
@@ -128,6 +129,10 @@ const startCanvasDrawing = (_stream: MediaStream) => {
 
   const draw = () => {
     if (!isCameraActive.value) return
+    if (!video.videoWidth || !video.videoHeight) {
+      requestAnimationFrame(draw)
+      return
+    }
 
     const targetRatio = aspectRatio.value === '9:16' ? 9 / 16 : aspectRatio.value === '1:1' ? 1 : 16 / 9
     const videoAspect = video.videoWidth / video.videoHeight
@@ -150,6 +155,9 @@ const startCanvasDrawing = (_stream: MediaStream) => {
     requestAnimationFrame(draw)
   }
 
+  if (video.readyState >= 1) {
+    draw()
+  }
   video.onloadedmetadata = () => {
     draw()
   }
@@ -170,11 +178,17 @@ const stopCamera = () => {
 
 const enterFocusMode = async () => {
   isFocusMode.value = true
+  countdown.value = 0
+  isCountingDown.value = false
+  if (countdownInterval) clearInterval(countdownInterval)
   await nextTick()
   await startCamera()
 }
 
 const exitFocusMode = () => {
+  if (countdownInterval) clearInterval(countdownInterval)
+  countdown.value = 0
+  isCountingDown.value = false
   if (isRecording.value) stopRecording()
   stopCamera()
   isFocusMode.value = false
@@ -197,27 +211,81 @@ const startRecording = async () => {
   }, 1000)
 }
 
-const startActualRecording = () => {
+const getSupportedMimeType = () => {
+  const candidates = [
+    'video/webm;codecs=vp9,opus',
+    'video/webm;codecs=vp8,opus',
+    'video/webm;codecs=vp9',
+    'video/webm;codecs=vp8',
+    'video/webm',
+    'video/mp4'
+  ]
+
+  for (const mimeType of candidates) {
+    if (MediaRecorder.isTypeSupported(mimeType)) {
+      return mimeType
+    }
+  }
+
+  // Fallback to basic webm if nothing else works
+  return 'video/webm'
+}
+
+const startActualRecording = async () => {
+  console.log('Starting actual recording...')
   recordedChunksRef.value = []
   previewUrl.value = null
 
-  const canvasStream = canvasRef.value!.captureStream(30)
+  if (!canvasRef.value || !videoRef.value) {
+    console.error('Canvas or video ref not available', { canvas: !!canvasRef.value, video: !!videoRef.value })
+    return
+  }
+
+  try {
+    await videoRef.value.play()
+    console.log('Video playing')
+  } catch (err) {
+    console.error('Failed to play video:', err)
+  }
+
+  await new Promise(resolve => setTimeout(resolve, 200))
+
+  console.log('Capturing canvas stream...')
+  const canvasStream = canvasRef.value.captureStream(30)
+  console.log('Canvas stream tracks:', canvasStream.getTracks())
+
   const audioTrack = streamRef.value?.getAudioTracks()[0]
   if (audioTrack) {
     canvasStream.addTrack(audioTrack)
+    console.log('Added audio track')
   }
 
-  const recorder = new MediaRecorder(canvasStream, { mimeType: 'video/webm;codecs=vp9' })
+  const mimeType = getSupportedMimeType()
+  console.log('Using MIME type:', mimeType)
+
+  const recorder = new MediaRecorder(canvasStream, { mimeType })
   mediaRecorderRef.value = recorder
   recorder.ondataavailable = (e) => {
     if (e.data.size > 0) recordedChunksRef.value.push(e.data)
   }
   recorder.onstop = () => {
-    const blob = new Blob(recordedChunksRef.value, { type: 'video/webm' })
+    const blob = new Blob(recordedChunksRef.value, { type: mimeType })
     previewUrl.value = URL.createObjectURL(blob)
+    console.log('Recording stopped, blob size:', blob.size)
   }
-  recorder.start()
+
+  recorder.onstart = () => {
+    console.log('Recorder started!')
+  }
+
+  recorder.onerror = (e) => {
+    console.error('Recorder error:', e)
+  }
+
+  recorder.start(100)
+  console.log('Setting isRecording to true...')
   isRecording.value = true
+  console.log('isRecording is now:', isRecording.value)
   timer.value = 0
   currentWordIndex.value = 0
   isAutoScroll.value = true
@@ -488,6 +556,7 @@ useHead({
                   :class="['mx-auto overflow-hidden rounded-xl border-4 border-muted shadow-2xl bg-black', aspectRatio === '9:16' ? 'w-1/2 aspect-9/16' : aspectRatio === '1:1' ? 'w-2/3 aspect-square' : 'w-full aspect-video']">
                   <video :src="previewUrl" controls class="w-full h-full object-contain" />
                 </div>
+
               </div>
             </div>
           </UCard>

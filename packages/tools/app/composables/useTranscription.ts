@@ -135,6 +135,7 @@ export const useTranscription = () => {
 		switch (type) {
 			case 'status':
 				modelProgress.value = progress
+				
 				if (status === 'loaded') {
 					isModelLoaded.value = true
 					currentModel.value = model
@@ -142,23 +143,43 @@ export const useTranscription = () => {
 					isModelLoaded.value = false
 				} else if (status === 'error') {
 					isModelLoaded.value = false
+					const currentFile = files.value.find(f => f.status === 'transcribing')
+					if (currentFile) {
+						currentFile.status = 'error'
+						currentFile.error = error
+						isProcessing.value = false
+					}
+				} else if (status === 'transcribing') {
+					const currentFile = files.value.find(f => f.status === 'transcribing')
+					if (currentFile) {
+						currentFile.progress = progress
+					}
+				} else if (status === 'done') {
+					const currentFile = files.value.find(f => f.status === 'transcribing')
+					if (currentFile) {
+						currentFile.status = 'done'
+						currentFile.progress = 100
+					}
 				}
 				break
 
 			case 'result':
 				if (result) {
-					const currentFile = files.value.find(f => f.status === 'transcribing')
+					console.log('Received transcription result:', result)
+					const currentFile = files.value.find(f => f.status === 'transcribing' || f.status === 'done')
 					if (currentFile) {
 						currentFile.status = 'done'
 						currentFile.progress = 100
 						currentFile.result = result
 						currentFile.error = null
+						console.log('File result updated:', currentFile.name, currentFile.result)
 					}
 				}
 				isProcessing.value = false
 				break
 
 			case 'error':
+				console.error('Worker error:', error)
 				if (error) {
 					const currentFile = files.value.find(f => f.status === 'transcribing')
 					if (currentFile) {
@@ -243,23 +264,39 @@ export const useTranscription = () => {
 
 		if (!isModelLoaded.value) {
 			await loadModel(currentModel.value)
+			await new Promise(resolve => setTimeout(resolve, 1000))
 		}
 
 		file.status = 'transcribing'
 		file.progress = 0
+		file.error = null
 		isProcessing.value = true
 
-		const arrayBuffer = await file.file.arrayBuffer()
-		const audioData = new Float32Array(new Float32Array(arrayBuffer))
+		try {
+			const audioBuffer = await decodeAudioFile(file.file)
+			
+			workerRef.value.postMessage({
+				type: 'transcribe',
+				payload: {
+					audio: Array.from(audioBuffer),
+					language: language || currentLanguage.value,
+					model: currentModel.value
+				}
+			})
+		} catch (err) {
+			file.status = 'error'
+			file.error = err instanceof Error ? err.message : 'Failed to process audio'
+			isProcessing.value = false
+		}
+	}
 
-		workerRef.value.postMessage({
-			type: 'transcribe',
-			payload: {
-				audio: audioData,
-				language: language || currentLanguage.value,
-				model: currentModel.value
-			}
-		})
+	async function decodeAudioFile(file: File): Promise<Float32Array> {
+		const arrayBuffer = await file.arrayBuffer()
+		const audioContext = new AudioContext()
+		const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
+		
+		const channelData = audioBuffer.getChannelData(0)
+		return channelData
 	}
 
 	const transcribeAll = async (language?: string) => {

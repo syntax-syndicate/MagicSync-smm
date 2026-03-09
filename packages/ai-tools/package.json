@@ -14,6 +14,7 @@
   "dependencies": {
     "@local-monorepo/db": "workspace:*",
     "@local-monorepo/ui": "workspace:*",
+    "@local-monorepo/tools": "workspace:*",
     "@nuxtjs/i18n": "catalog:",
     "cheerio": "catalog:",
     "evlog": "catalog:",

@@ -45,7 +45,7 @@ export const useContentPipeline = () => {
       id: h.id,
       name: rt(h.name),
       template: rt(h.template),
-      usage: h.usage,
+      usage: rt(h.usage),
       successRate: h.successRate
     }))
   })
@@ -59,7 +59,7 @@ export const useContentPipeline = () => {
   onMounted(() => {
     hooks.value = [...initialHooks.value]
     if (hooks.value.length > 0) {
-      selectedHook.value = { ...hooks.value[0] }
+      selectedHook.value = hooks.value[0] as HookVariation
     }
   })
 

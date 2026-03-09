@@ -1,5 +1,9 @@
 <i18n src="./index.json"></i18n>
 <script lang="ts" setup>
+import { Comark } from 'comark/vue'
+import type { EditorToolbarItem, EditorSuggestionMenuItem } from '@nuxt/ui'
+
+
 /**
  *
  * Component Description: Dashboard for social media growth strategy, featuring action plans and principles.
@@ -12,6 +16,86 @@
  * @todo [✔] Update the typescript.
  */
 
+const items: EditorToolbarItem[] = [
+  { kind: 'mark', mark: 'bold', icon: 'i-lucide-bold' },
+  { kind: 'mark', mark: 'italic', icon: 'i-lucide-italic' },
+  { kind: 'heading', level: 1, icon: 'i-lucide-heading-1' },
+  { kind: 'heading', level: 2, icon: 'i-lucide-heading-2' },
+  { kind: 'textAlign', align: 'left', icon: 'i-lucide-align-left' },
+  { kind: 'textAlign', align: 'center', icon: 'i-lucide-align-center' },
+  { kind: 'bulletList', icon: 'i-lucide-list' },
+  { kind: 'orderedList', icon: 'i-lucide-list-ordered' },
+  { kind: 'blockquote', icon: 'i-lucide-quote' },
+  { kind: 'link', icon: 'i-lucide-link' }
+]
+const itemSuggestions: EditorSuggestionMenuItem[][] = [
+  [
+    {
+      type: 'label',
+      label: 'Text'
+    },
+    {
+      kind: 'paragraph',
+      label: 'Paragraph',
+      icon: 'i-lucide-type'
+    },
+    {
+      kind: 'heading',
+      level: 1,
+      label: 'Heading 1',
+      icon: 'i-lucide-heading-1'
+    },
+    {
+      kind: 'heading',
+      level: 2,
+      label: 'Heading 2',
+      icon: 'i-lucide-heading-2'
+    },
+    {
+      kind: 'heading',
+      level: 3,
+      label: 'Heading 3',
+      icon: 'i-lucide-heading-3'
+    }
+  ],
+  [
+    {
+      type: 'label',
+      label: 'Lists'
+    },
+    {
+      kind: 'bulletList',
+      label: 'Bullet List',
+      icon: 'i-lucide-list'
+    },
+    {
+      kind: 'orderedList',
+      label: 'Numbered List',
+      icon: 'i-lucide-list-ordered'
+    }
+  ],
+  [
+    {
+      type: 'label',
+      label: 'Insert'
+    },
+    {
+      kind: 'blockquote',
+      label: 'Blockquote',
+      icon: 'i-lucide-text-quote'
+    },
+    {
+      kind: 'codeBlock',
+      label: 'Code Block',
+      icon: 'i-lucide-square-code'
+    },
+    {
+      kind: 'horizontalRule',
+      label: 'Divider',
+      icon: 'i-lucide-separator-horizontal'
+    }
+  ]
+]
 const { t } = useI18n()
 const { actionPlan, editingSection, editBuffer, startEditing, saveEditing, cancelEditing, resetSection } = useGrowthStrategy()
 
@@ -36,6 +120,8 @@ const actionSections = computed(() => [
   { id: 'day30', label: t('actionPlan.day30'), icon: 'i-lucide-calendar-days' },
   { id: 'day90', label: t('actionPlan.day90'), icon: 'i-lucide-trophy' },
 ] as const)
+
+const appendToBody = import.meta.client ? () => document.body : undefined
 </script>
 
 <template>
@@ -49,38 +135,28 @@ const actionSections = computed(() => [
       </template>
     </BasePageHeader>
 
-    <div class="max-w-5xl mx-auto">
-      <UTabs variant="link" :items="tabs" class="w-full" :ui="{
-        list: {
-          base: 'relative w-full flex items-center justify-center gap-8 border-b border-border mb-8',
-          marker: 'absolute -bottom-px h-[2px] bg-primary transition-all duration-300',
-          tab: {
-            base: 'px-4 py-3 text-sm font-medium transition-colors duration-200 focus:outline-none',
-            active: 'text-primary',
-            inactive: 'text-muted-foreground hover:text-foreground'
-          }
-        }
-      }">
+    <div class="mx-auto">
+      <UTabs variant="link" :items="tabs" class="w-full">
         <template #next-steps>
-          <UCard class="bg-background/50 backdrop-blur-xl border-border shadow-sm rounded-3xl overflow-hidden">
+          <UCard class=" overflow-hidden border-0 rounded-none bg-transparent shadow-none ring-0">
             <div
               class="p-8 prose prose-neutral dark:prose-invert max-w-none prose-headings:font-bold prose-h2:text-primary prose-a:text-primary hover:prose-a:underline">
-              <UEditor v-model="nextStepsMd" content-type="markdown" />
+              <Comark :markdown="nextStepsMd" content-type="markdown" />
             </div>
           </UCard>
         </template>
         <template #principles>
-          <UCard class="bg-background/50 backdrop-blur-xl border-border shadow-sm rounded-3xl overflow-hidden">
+          <UCard class=" overflow-hidden rounded-none bg-transparent shadow-none ring-0">
             <div
               class="p-8 prose prose-neutral dark:prose-invert max-w-none prose-headings:font-bold prose-h2:text-primary prose-a:text-primary hover:prose-a:underline">
-              <UEditor v-model="principlesMd" content-type="markdown" />
+              <Comark :markdown="principlesMd" content-type="markdown" />
             </div>
           </UCard>
         </template>
         <template #action-plan>
           <div class="grid grid-cols-1 gap-6">
             <UCard v-for="section in actionSections" :key="section.id"
-              class="group relative bg-background/50 backdrop-blur-xl border-border hover:border-primary/30 transition-all duration-300 shadow-sm rounded-3xl overflow-hidden">
+              class="group relative bg-transparent transition-all duration-300 overflow-hidden ring-0 ">
               <div class="p-8">
                 <div class="flex items-center justify-between mb-8 pb-4 border-b border-border/50">
                   <div class="flex items-center gap-4">
@@ -118,10 +194,13 @@ const actionSections = computed(() => [
 
                 <div class="prose prose-neutral dark:prose-invert max-w-none">
                   <template v-if="editingSection === section.id">
-                    <UTextarea v-model="editBuffer" autoresize :rows="12" variant="none"
-                      class="w-full bg-muted/30 rounded-2xl p-4 font-mono text-sm border-2 border-primary/20 focus:border-primary transition-colors" />
+                    <UEditor v-slot="{ editor }" v-model="editBuffer" content-type="markdown" variant="none"
+                      class="w-full bg-muted/30 rounded-2xl p-4 font-mono text-sm border-2 border-primary/20 focus:border-primary transition-colors">
+                      <UEditorToolbar :editor="editor" :items="items" layout="bubble" />
+                      <UEditorSuggestionMenu :editor="editor" :items="itemSuggestions" :append-to="appendToBody" />
+                    </UEditor>
                   </template>
-                  <UEditor v-else v-model="actionPlan[section.id]" content-type="markdown" />
+                  <Comark v-else :markdown="actionPlan[section.id]" content-type="markdown" />
                 </div>
               </div>
             </UCard>

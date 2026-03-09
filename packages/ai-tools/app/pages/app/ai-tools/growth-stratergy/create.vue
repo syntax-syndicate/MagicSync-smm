@@ -54,11 +54,17 @@ const {
 } = useContentPipelineManagement()
 
 const videoRef = ref<HTMLVideoElement | null>(null)
+const canvasRef = ref<HTMLCanvasElement | null>(null)
 const mediaRecorderRef = ref<MediaRecorder | null>(null)
 const recordedChunksRef = ref<Blob[]>([])
+const streamRef = ref<MediaStream | null>(null)
 
 let timerInterval: ReturnType<typeof setInterval> | null = null
 let scrollTimeout: ReturnType<typeof setTimeout> | null = null
+let countdownInterval: ReturnType<typeof setInterval> | null = null
+
+const countdown = ref(0)
+const isCountingDown = ref(false)
 
 watch(isRecording, (recording: boolean) => {
   if (recording) {
@@ -68,40 +74,92 @@ watch(isRecording, (recording: boolean) => {
   }
 })
 
-watch([isRecording, isAutoScroll, currentWordIndex], () => {
+watch([isRecording, isAutoScroll, currentWordIndex, speedMultiplier], () => {
   if (scrollTimeout) clearTimeout(scrollTimeout)
-  if (!isRecording.value || !isAutoScroll.value || currentWordIndex.value >= words.value.length - 1) return
-  const word = words.value[currentWordIndex.value]
+
+  const shouldScroll = isRecording.value && isAutoScroll.value && currentWordIndex.value < words.value.length - 1
+  if (!shouldScroll) return
+
+  const word = words.value[currentWordIndex.value] || ''
   const lengthFactor = Math.max(0.5, Math.min(2, word.length / 5))
   let duration = 350 * lengthFactor
   if (word.match(/[.,!?:]$/)) duration += 400
   duration = duration / speedMultiplier.value
+
   scrollTimeout = setTimeout(() => {
     currentWordIndex.value = Math.min(words.value.length - 1, currentWordIndex.value + 1)
   }, duration)
-})
+}, { deep: true })
 
 onUnmounted(() => {
   if (timerInterval) clearInterval(timerInterval)
   if (scrollTimeout) clearTimeout(scrollTimeout)
+  if (countdownInterval) clearInterval(countdownInterval)
   stopCamera()
 })
 
 const startCamera = async () => {
   try {
     const ratioMap: Record<string, number> = { '9:16': 9 / 16, '1:1': 1, '16:9': 16 / 9 }
-    const stream = await navigator.mediaDevices.getUserMedia({
+    const rawStream = await navigator.mediaDevices.getUserMedia({
       video: { aspectRatio: { ideal: ratioMap[aspectRatio.value] || 16 / 9 } },
       audio: true,
     })
+    streamRef.value = rawStream
+
     if (videoRef.value) {
-      videoRef.value.srcObject = stream
+      videoRef.value.srcObject = rawStream
       isCameraActive.value = true
     }
-  } catch { }
+
+    startCanvasDrawing(rawStream)
+  } catch (err) {
+    console.error('Failed to start camera:', err)
+  }
+}
+
+const startCanvasDrawing = (_stream: MediaStream) => {
+  if (!videoRef.value || !canvasRef.value) return
+
+  const video = videoRef.value
+  const canvas = canvasRef.value
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+
+  const draw = () => {
+    if (!isCameraActive.value) return
+
+    const targetRatio = aspectRatio.value === '9:16' ? 9 / 16 : aspectRatio.value === '1:1' ? 1 : 16 / 9
+    const videoAspect = video.videoWidth / video.videoHeight
+
+    let sx = 0, sy = 0, sw = video.videoWidth, sh = video.videoHeight
+
+    if (videoAspect > targetRatio) {
+      sw = video.videoHeight * targetRatio
+      sx = (video.videoWidth - sw) / 2
+    } else {
+      sh = video.videoWidth / targetRatio
+      sy = (video.videoHeight - sh) / 2
+    }
+
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+
+    ctx.drawImage(video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height)
+
+    requestAnimationFrame(draw)
+  }
+
+  video.onloadedmetadata = () => {
+    draw()
+  }
 }
 
 const stopCamera = () => {
+  if (streamRef.value) {
+    streamRef.value.getTracks().forEach(t => t.stop())
+    streamRef.value = null
+  }
   if (videoRef.value?.srcObject) {
     const stream = videoRef.value.srcObject as MediaStream
     stream.getTracks().forEach(t => t.stop())
@@ -122,12 +180,34 @@ const exitFocusMode = () => {
   isFocusMode.value = false
 }
 
-const startRecording = () => {
-  if (!videoRef.value?.srcObject) return
+const startRecording = async () => {
+  if (!canvasRef.value) return
+
+  // Start countdown from 3 to 0
+  countdown.value = 3
+  isCountingDown.value = true
+
+  countdownInterval = setInterval(() => {
+    countdown.value--
+    if (countdown.value <= 0) {
+      clearInterval(countdownInterval!)
+      isCountingDown.value = false
+      startActualRecording()
+    }
+  }, 1000)
+}
+
+const startActualRecording = () => {
   recordedChunksRef.value = []
   previewUrl.value = null
-  const stream = videoRef.value.srcObject as MediaStream
-  const recorder = new MediaRecorder(stream)
+
+  const canvasStream = canvasRef.value!.captureStream(30)
+  const audioTrack = streamRef.value?.getAudioTracks()[0]
+  if (audioTrack) {
+    canvasStream.addTrack(audioTrack)
+  }
+
+  const recorder = new MediaRecorder(canvasStream, { mimeType: 'video/webm;codecs=vp9' })
   mediaRecorderRef.value = recorder
   recorder.ondataavailable = (e) => {
     if (e.data.size > 0) recordedChunksRef.value.push(e.data)
@@ -147,6 +227,14 @@ const stopRecording = () => {
   mediaRecorderRef.value?.stop()
   isRecording.value = false
   isAutoScroll.value = false
+}
+
+const downloadVideo = () => {
+  if (!previewUrl.value) return
+  const a = document.createElement('a')
+  a.href = previewUrl.value
+  a.download = `video-${aspectRatio.value}-${Date.now()}.webm`
+  a.click()
 }
 
 const onCheckHookHealth = async () => {
@@ -181,15 +269,6 @@ useHead({
       </template>
     </BasePageHeader>
 
-    <UCard>
-      <template #header>
-        <h2 class="text-xs font-bold uppercase tracking-wider text-muted-foreground">{{
-          t('ideaBank.title') }}</h2>
-      </template>
-      <UTextarea v-model="ideas" :placeholder="t('ideaBank.placeholder')" variant="subtle" :rows="6" block
-        class="font-mono w-full" />
-    </UCard>
-
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <div class="space-y-8">
         <section class="space-y-6">
@@ -206,7 +285,7 @@ useHead({
             <div class="space-y-2">
               <label class="block text-xs font-mono text-muted-foreground uppercase">{{
                 t('script.topicLabel') }}</label>
-              <UInput v-model="topic" :placeholder="t('script.topicPlaceholder')" block />
+              <UInput v-model="topic" :placeholder="t('script.topicPlaceholder')" block class="w-full" />
             </div>
 
             <div class="space-y-4">
@@ -233,7 +312,7 @@ useHead({
                   class="flex flex-col items-start p-3 h-auto text-left" @click="handleHookSelect(hook)">
                   <div class="font-bold text-sm">{{ hook.name }}</div>
                   <div class="flex justify-between w-full text-[10px] font-mono opacity-70 mt-1">
-                    <span>{{ hook.usage.body.static }}</span>
+                    <span>{{ hook.usage }}</span>
                     <span>{{ hook.successRate }}% Win</span>
                   </div>
                 </UButton>
@@ -379,9 +458,9 @@ useHead({
 
               <div class="w-full max-w-xs space-y-4">
                 <div class="grid grid-cols-3 gap-2">
-                  <UButton v-for="ratio in ['16:9', '9:16', '1:1']" :key="ratio" color="neutral"
+                  <UButton v-for="ratio in (['16:9', '9:16', '1:1'] as const)" :key="ratio" color="neutral"
                     :variant="aspectRatio === ratio ? 'solid' : 'outline'" size="xs" class="justify-center"
-                    @click="aspectRatio = ratio as any">
+                    @click="aspectRatio = ratio">
                     {{ ratio }}
                   </UButton>
                 </div>
@@ -390,13 +469,20 @@ useHead({
                 </UButton>
               </div>
 
-              <div v-if="previewUrl" class="w-full space-y-3 pt-6 border-t border-border">
+              <div
+                v-if="previewUrl"
+                class="w-full space-y-3 pt-6 border-t border-border">
                 <div class="flex justify-between items-center">
                   <span class="text-xs font-mono text-muted-foreground uppercase">{{
                     t('record.latestRecording') }}</span>
-                  <UButton color="neutral" variant="link" size="xs" @click="previewUrl = null">
-                    {{ t('record.clear') }}
-                  </UButton>
+                  <div class="flex gap-2">
+                    <UButton color="primary" variant="link" size="xs" icon="i-lucide-download" @click="downloadVideo">
+                      {{ t('record.download') }}
+                    </UButton>
+                    <UButton color="neutral" variant="link" size="xs" @click="previewUrl = null">
+                      {{ t('record.clear') }}
+                    </UButton>
+                  </div>
                 </div>
                 <div
                   :class="['mx-auto overflow-hidden rounded-xl border-4 border-muted shadow-2xl bg-black', aspectRatio === '9:16' ? 'w-1/2 aspect-9/16' : aspectRatio === '1:1' ? 'w-2/3 aspect-square' : 'w-full aspect-video']">
@@ -406,146 +492,149 @@ useHead({
             </div>
           </UCard>
         </section>
-
-        <section class="space-y-6">
-          <div class="flex justify-between items-center">
-            <h2 class="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-              <span
-                class="bg-primary text-primary-foreground w-6 h-6 flex items-center justify-center rounded text-xs">3</span>
-              {{ t('editChecklist.title') }}
-            </h2>
-            <span class="text-xs font-mono text-muted-foreground">{{ t('editChecklist.duration1h') }}</span>
-          </div>
-          <UCard>
-            <div class="space-y-3">
-              <UCheckbox v-model="editChecklist.hookEngaging" :label="t('editChecklist.hook')" />
-              <UCheckbox v-model="editChecklist.valueDelivered" :label="t('editChecklist.value')" />
-              <UCheckbox v-model="editChecklist.clearCta" :label="t('editChecklist.cta')" />
-            </div>
-          </UCard>
-        </section>
-
-        <section class="space-y-6">
-          <div class="flex justify-between items-center">
-            <h2 class="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-              <span
-                class="bg-primary text-primary-foreground w-6 h-6 flex items-center justify-center rounded text-xs">4</span>
-              {{ t('upload.title') }}
-            </h2>
-            <span class="text-xs font-mono text-muted-foreground">{{ t('upload.durationNextSteps') }}</span>
-          </div>
-          <UCard>
-            <div class="space-y-4">
-              <div class="space-y-2">
-                <label class="block text-xs font-mono text-muted-foreground uppercase">{{
-                  t('upload.videoUrl') }}</label>
-                <UInput v-model="videoUrl" :placeholder="t('upload.placeholder')" block />
-              </div>
-              <UButton :loading="isPublishing" block size="lg" color="primary" icon="i-lucide-cloud-upload"
-                @click="onMarkAsPublished">
-                {{ t('upload.markPublished') }}
-              </UButton>
-            </div>
-          </UCard>
-        </section>
       </div>
+
+      <section class="space-y-6">
+        <div class="flex justify-between items-center">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+            <span
+              class="bg-primary text-primary-foreground w-6 h-6 flex items-center justify-center rounded text-xs">3</span>
+            {{ t('editChecklist.title') }}
+          </h2>
+          <span class="text-xs font-mono text-muted-foreground">{{ t('editChecklist.duration1h') }}</span>
+        </div>
+        <UCard>
+          <div class="space-y-3">
+            <UCheckbox v-model="editChecklist.hookEngaging" :label="t('editChecklist.hook')" />
+            <UCheckbox v-model="editChecklist.valueDelivered" :label="t('editChecklist.value')" />
+            <UCheckbox v-model="editChecklist.clearCta" :label="t('editChecklist.cta')" />
+          </div>
+        </UCard>
+      </section>
+
+      <section class="space-y-6">
+        <div class="flex justify-between items-center">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+            <span
+              class="bg-primary text-primary-foreground w-6 h-6 flex items-center justify-center rounded text-xs">4</span>
+            {{ t('upload.title') }}
+          </h2>
+          <span class="text-xs font-mono text-muted-foreground">{{ t('upload.durationNextSteps') }}</span>
+        </div>
+        <UCard>
+          <div class="space-y-4">
+            <div class="space-y-2">
+              <label class="block text-xs font-mono text-muted-foreground uppercase">{{
+                t('upload.videoUrl') }}</label>
+              <UInput v-model="videoUrl" :placeholder="t('upload.placeholder')" block />
+            </div>
+            <UButton :loading="isPublishing" block size="lg" color="primary" icon="i-lucide-cloud-upload"
+              @click="onMarkAsPublished">
+              {{ t('upload.markPublished') }}
+            </UButton>
+          </div>
+        </UCard>
+      </section>
     </div>
+  </div>
 
-    <UModal v-model:open="isFocusMode" fullscreen>
-      <template #content>
+  <UModal v-model:open="isFocusMode" fullscreen>
+    <template #content>
+      <div class=" w-full h-full inset-0 z-50 bg-background flex flex-col items-center justify-center overflow-hidden">
         <div
-          class=" w-full h-full inset-0 z-50 bg-background flex flex-col items-center justify-center overflow-hidden">
-          <div
-            class="absolute top-0 inset-x-0 p-6 flex justify-between items-center z-50 bg-linear-to-b from-background/90 to-transparent">
-            <div class="flex items-center gap-4">
-              <UButton icon="i-lucide-x" color="neutral" variant="ghost" size="lg" @click="exitFocusMode" />
-              <span class="text-sm font-bold uppercase tracking-widest text-muted-foreground">{{
-                t('record.focusMode') }}</span>
-            </div>
-            <div v-if="isRecording"
-              class="flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-600">
-              <div class="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
-              <span class="text-lg font-mono font-bold tabular-nums">{{ formatTime(timer) }}</span>
-            </div>
+          class="absolute top-0 inset-x-0 p-6 flex justify-between items-center z-50 bg-linear-to-b from-background/90 to-transparent">
+          <div class="flex items-center gap-4">
+            <UButton icon="i-lucide-x" color="neutral" variant="ghost" size="lg" @click="exitFocusMode" />
+            <span class="text-sm font-bold uppercase tracking-widest text-muted-foreground">{{
+              t('record.focusMode') }}</span>
           </div>
-
-          <div class="flex-1 relative w-full h-full flex items-center justify-center p-4 md:p-12 overflow-hidden">
-            <div
-              :class="['relative bg-neutral-900 rounded-3xl overflow-hidden shadow-2xl border border-border transition-all duration-700', aspectRatio === '9:16' ? 'h-full aspect-9/16' : aspectRatio === '1:1' ? 'h-full aspect-square' : 'w-full max-w-6xl aspect-video']">
-              <video ref="videoRef" autoplay muted playsinline
-                class="absolute inset-0 w-full h-full object-cover opacity-30" />
-
-              <div v-if="words.length > 0"
-                class="absolute inset-0 z-10 flex flex-col items-center justify-center p-8 text-center bg-black/40">
-                <transition-group name="word" tag="div"
-                  :class="['font-sans font-extrabold leading-tight tracking-tight flex flex-wrap justify-center gap-x-4 gap-y-2 select-none', aspectRatio === '9:16' ? 'text-4xl' : 'text-5xl md:text-7xl']">
-                  <span v-for="(word, idx) in currentLine" :key="idx" :class="[
-                    'transition-all duration-300',
-                    Number(idx) === Number(currentWordIndex) % WORDS_PER_LINE ? 'text-primary scale-110 drop-shadow-[0_0_20px_rgba(var(--color-primary-500),0.5)]' : Number(idx) < Number(currentWordIndex) % WORDS_PER_LINE ? 'text-white/20' : 'text-white'
-                  ]">
-                    {{ word }}
-                  </span>
-                </transition-group>
-                <div v-if="nextLine.length" class="absolute bottom-12 inset-x-0 flex justify-center opacity-40">
-                  <p
-                    :class="['text-white/80 font-medium tracking-wide bg-white/5 px-6 py-2 rounded-full backdrop-blur-sm truncate max-w-[80%]', aspectRatio === '9:16' ? 'text-lg' : 'text-2xl']">
-                    Next: {{ nextLine.join(' ') }}
-                  </p>
-                </div>
-              </div>
-              <div v-else
-                class="absolute inset-0 z-10 flex items-center justify-center text-white/50 font-mono text-sm">
-                {{ t('record.noScript') }}
-              </div>
-            </div>
+          <div v-if="isRecording"
+            class="flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-600">
+            <div class="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
+            <span class="text-lg font-mono font-bold tabular-nums">{{ formatTime(timer) }}</span>
           </div>
+        </div>
 
+        <div class="flex-1 relative w-full h-full flex items-center justify-center p-4 md:p-12 overflow-hidden">
           <div
-            class="absolute bottom-0 inset-x-0 p-8 flex flex-col items-center gap-6 z-50 bg-linear-to-t from-background via-background/80 to-transparent">
-            <div
-              class="flex flex-col md:flex-row items-center gap-6 w-full max-w-2xl px-8 py-6 rounded-3xl bg-background/50 backdrop-blur-xl border border-border shadow-lg">
-              <div class="flex-1 w-full space-y-2">
-                <div class="flex justify-between text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
-                  <span>{{ t('record.speed') }}</span>
-                  <span>{{ speedMultiplier.toFixed(1) }}x</span>
-                </div>
-                <USlider v-model="speedMultiplier" :min="0.5" :max="2.5" :step="0.1" color="primary" />
-              </div>
+            :class="['relative bg-neutral-900 rounded-3xl overflow-hidden shadow-2xl border border-border transition-all duration-700', aspectRatio === '9:16' ? 'h-full aspect-9/16' : aspectRatio === '1:1' ? 'h-full aspect-square' : 'w-full max-w-6xl aspect-video']">
+            <video ref="videoRef" autoplay muted playsinline
+              class="absolute inset-0 w-full h-full object-cover opacity-30" />
 
-              <div class="flex gap-2">
-                <UButton icon="i-lucide-chevron-up" color="neutral" variant="soft" size="lg" square
-                  :disabled="Number(currentWordIndex) < WORDS_PER_LINE"
-                  @click="currentWordIndex = Math.max(0, currentWordIndex - WORDS_PER_LINE)" />
-                <UButton icon="i-lucide-chevron-down" color="neutral" variant="soft" size="lg" square
-                  :disabled="currentLineIndex >= lines.length - 1"
-                  @click="currentWordIndex = Math.min(words.length - 1, currentWordIndex + WORDS_PER_LINE)" />
-                <UButton :icon="isAutoScroll ? 'i-lucide-pause' : 'i-lucide-play'"
-                  :color="isAutoScroll ? 'primary' : 'neutral'" variant="soft" size="lg" square :disabled="!isRecording"
-                  @click="isAutoScroll = !isAutoScroll" />
+            <div v-if="words.length > 0"
+              class="absolute inset-0 z-10 flex flex-col items-center justify-center p-8 text-center bg-black/40">
+              <transition-group name="word" tag="div"
+                :class="['font-sans font-extrabold leading-tight tracking-tight flex flex-wrap justify-center gap-x-4 gap-y-2 select-none', aspectRatio === '9:16' ? 'text-4xl' : 'text-5xl md:text-7xl']">
+                <span v-for="(word, idx) in currentLine" :key="idx" :class="[
+                  'transition-all duration-300',
+                  Number(idx) === Number(currentWordIndex) % WORDS_PER_LINE ? 'text-primary scale-110 drop-shadow-[0_0_20px_rgba(var(--color-primary-500),0.5)]' : Number(idx) < Number(currentWordIndex) % WORDS_PER_LINE ? 'text-white/20' : 'text-white'
+                ]">
+                  {{ word }}
+                </span>
+              </transition-group>
+              <div v-if="nextLine.length" class="absolute bottom-12 inset-x-0 flex justify-center opacity-40">
+                <p
+                  :class="['text-white/80 font-medium tracking-wide bg-white/5 px-6 py-2 rounded-full backdrop-blur-sm truncate max-w-[80%]', aspectRatio === '9:16' ? 'text-lg' : 'text-2xl']">
+                  Next: {{ nextLine.join(' ') }}
+                </p>
               </div>
             </div>
-
-            <div class="relative group">
-              <div v-if="!isRecording"
-                class="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/30 transition-all scale-110" />
-              <UButton v-if="!isRecording" size="xl" color="primary" variant="solid"
-                class="rounded-full px-12 py-5 text-lg font-black uppercase tracking-[0.2em] shadow-2xl relative transition-transform active:scale-95"
-                @click="startRecording">
-                <UIcon name="i-lucide-video" class="mr-3" /> {{ t('record.startRecording')
-                }}
-              </UButton>
-              <UButton v-else size="xl" color="red" variant="solid"
-                class="rounded-full px-12 py-5 text-lg font-black uppercase tracking-[0.2em] shadow-2xl relative transition-transform active:scale-95 animate-pulse"
-                @click="stopRecording">
-                <UIcon name="i-lucide-square" class="mr-3" /> {{ t('record.stopRecording')
-                }}
-              </UButton>
+            <div v-else class="absolute inset-0 z-10 flex items-center justify-center text-white/50 font-mono text-sm">
+              {{ t('record.noScript') }}
             </div>
           </div>
         </div>
-      </template>
-    </UModal>
-  </div>
+
+        <div
+          class="absolute bottom-0 inset-x-0 p-8 flex flex-col items-center gap-6 z-50 bg-linear-to-t from-background via-background/80 to-transparent">
+          <div v-if="isCountingDown" class="text-9xl font-black text-white animate-pulse">
+            {{ countdown }}
+          </div>
+          <div
+            class="flex flex-col md:flex-row items-center gap-6 w-full max-w-2xl px-8 py-6 rounded-3xl bg-background/50 backdrop-blur-xl border border-border shadow-lg">
+            <div class="flex-1 w-full space-y-2">
+              <div class="flex justify-between text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
+                <span>{{ t('record.speed') }}</span>
+                <span>{{ speedMultiplier.toFixed(1) }}x</span>
+              </div>
+              <USlider v-model="speedMultiplier" :min="0.5" :max="2.5" :step="0.1" color="primary" />
+            </div>
+
+            <div class="flex gap-2">
+              <UButton icon="i-lucide-chevron-up" color="neutral" variant="soft" size="lg" square
+                :disabled="Number(currentWordIndex) < WORDS_PER_LINE"
+                @click="currentWordIndex = Math.max(0, currentWordIndex - WORDS_PER_LINE)" />
+              <UButton icon="i-lucide-chevron-down" color="neutral" variant="soft" size="lg" square
+                :disabled="currentLineIndex >= lines.length - 1"
+                @click="currentWordIndex = Math.min(words.length - 1, currentWordIndex + WORDS_PER_LINE)" />
+              <UButton :icon="isAutoScroll ? 'i-lucide-pause' : 'i-lucide-play'"
+                :color="isAutoScroll ? 'primary' : 'neutral'" variant="soft" size="lg" square :disabled="!isRecording"
+                @click="isAutoScroll = !isAutoScroll" />
+            </div>
+          </div>
+
+          <div class="relative group">
+            <div v-if="!isRecording"
+              class="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/30 transition-all scale-110" />
+            <UButton v-if="!isRecording" size="xl" color="primary" variant="solid"
+              class="rounded-full px-12 py-5 text-lg font-black uppercase tracking-[0.2em] shadow-2xl relative transition-transform active:scale-95"
+              @click="startRecording">
+              <UIcon name="i-lucide-video" class="mr-3" /> {{ t('record.startRecording')
+              }}
+            </UButton>
+            <UButton v-else size="xl" color="error" variant="solid"
+              class="rounded-full px-12 py-5 text-lg font-black uppercase tracking-[0.2em] shadow-2xl relative transition-transform active:scale-95 animate-pulse"
+              @click="stopRecording">
+              <UIcon name="i-lucide-square" class="mr-3" /> {{ t('record.stopRecording')
+              }}
+            </UButton>
+          </div>
+        </div>
+      </div>
+
+      <canvas ref="canvasRef" class="fixed top-0 left-0 w-px h-px opacity-0 pointer-events-none" />
+    </template>
+  </UModal>
 </template>
 
 <style scoped>

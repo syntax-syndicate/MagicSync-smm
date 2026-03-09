@@ -3,9 +3,9 @@
     "title": "Growth Strategy",
     "subtitle": "Your roadmap to social media growth.",
     "tabs": {
-      "nextSteps": "🎯 Next Steps",
-      "principles": "🔥 Key Principles",
-      "actionPlan": "📅 Action Plan"
+      "nextSteps": "Next Steps",
+      "principles": "Key Principles",
+      "actionPlan": "Action Plan"
     },
     "actionPlan": {
       "day7": "7 Days",
@@ -16,7 +16,7 @@
       "cancel": "Cancel",
       "reset": "Reset to default"
     },
-    "cta": "🚀 Open Content Pipeline",
+    "cta": "Open Content Pipeline",
     "defaults": {
       "nextStepsMd": "## 🎯 {nextSteps}\n\n### TODAY (30 minutes)\n- [ ] Open `Your_90_Day_Action_Plan.md`\n- [ ] Read \"Month 1: Foundation\"\n- [ ] Choose your first topic from the 20 NEW ideas list\n\n### THIS WEEK (4 hours total)\n- [ ] Write script using template (30 min)\n- [ ] Record video (2 hours)\n- [ ] Edit (1 hour)\n- [ ] Upload + publish (30 min)\n\n### THIS MONTH\n- [ ] Follow the weekly schedule consistently\n- [ ] Publish 9 pieces total (1 YouTube, 4 TikTok, 2 Twitter, 2 LinkedIn)\n- [ ] Track metrics in the Data dashboard\n",
       "principlesMd": "## 🔥 {principles}\n\n1. **First 30 videos are learning curve** — Don't expect virality. Focus on metrics improvement.\n2. **Consistency > Perfection** — Ship weekly, optimize monthly.\n3. **Hook is 80% of the game** — Spend more time on the first 3 seconds than the rest of the script.\n4. **Repurpose everything** — One video = 8+ pieces across platforms.\n5. **Community grows you** — Reply to every comment in the first 60 minutes.\n",

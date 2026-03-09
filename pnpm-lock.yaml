@@ -118,8 +118,8 @@ catalogs:
       specifier: ^1.2.0
       version: 1.2.0
     comark:
-      specifier: ^0.0.1
-      version: 0.0.1
+      specifier: https://pkg.pr.new/comarkdown/comark@9c1c9e3
+      version: 1.0.0
     consola:
       specifier: 3.4.2
       version: 3.4.2
@@ -237,7 +237,7 @@ importers:
         version: 1.2.0
       comark:
         specifier: 'catalog:'
-        version: 0.0.1
+        version: https://pkg.pr.new/comarkdown/comark@9c1c9e3(vue@3.5.28(typescript@5.9.3))
       evlog:
         specifier: 'catalog:'
         version: 1.7.0(@nuxt/kit@4.3.1(magicast@0.5.1))(h3@1.15.5)(nitropack@2.13.1(@libsql/client@0.17.0)(better-sqlite3@12.6.2)(drizzle-orm@0.45.1(@libsql/client@0.17.0)(@opentelemetry/api@1.9.0)(better-sqlite3@12.6.2)(kysely@0.28.9)))(ofetch@1.5.1)
@@ -727,7 +727,7 @@ importers:
         version: 10.2.3(@vue/compiler-dom@3.5.28)(db0@0.3.4(@libsql/client@0.17.0)(better-sqlite3@12.6.2)(drizzle-orm@0.45.1(@libsql/client@0.17.0)(@opentelemetry/api@1.9.0)(better-sqlite3@12.6.2)(kysely@0.28.9)))(eslint@10.0.0(jiti@2.6.1))(ioredis@5.9.1)(magicast@0.5.1)(rollup@4.55.1)(vue@3.5.28(typescript@5.9.3))
       comark:
         specifier: 'catalog:'
-        version: 0.0.1
+        version: https://pkg.pr.new/comarkdown/comark@9c1c9e3(vue@3.5.28(typescript@5.9.3))
       consola:
         specifier: 'catalog:'
         version: 3.4.2
@@ -5469,8 +5469,20 @@ packages:
   colortranslator@5.0.0:
     resolution: {integrity: sha512-Z3UPUKasUVDFCDYAjP2fmlVRf1jFHJv1izAmPjiOa0OCIw1W7iC8PZ2GsoDa8uZv+mKyWopxxStT9q05+27h7w==}
 
-  comark@0.0.1:
-    resolution: {integrity: sha512-n+mpE2OsQVxuBBj0es7WO13Pp6HE2cMmTZYxPNCg+5m7EaKtArSforUkcLIIuuSsHV7Ni1PWK0rcas2JzKyPDQ==}
+  comark@https://pkg.pr.new/comarkdown/comark@9c1c9e3:
+    resolution: {tarball: https://pkg.pr.new/comarkdown/comark@9c1c9e3}
+    version: 1.0.0
+    peerDependencies:
+      react: ^19.2.4
+      shiki: ^3.22.0
+      vue: ^3.5.27
+    peerDependenciesMeta:
+      react:
+        optional: true
+      shiki:
+        optional: true
+      vue:
+        optional: true
 
   combined-stream@1.0.8:
     resolution: {integrity: sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==}
@@ -15683,7 +15695,9 @@ snapshots:
 
   colortranslator@5.0.0: {}
 
-  comark@0.0.1: {}
+  comark@https://pkg.pr.new/comarkdown/comark@9c1c9e3(vue@3.5.28(typescript@5.9.3)):
+    optionalDependencies:
+      vue: 3.5.28(typescript@5.9.3)
 
   combined-stream@1.0.8:
     dependencies:

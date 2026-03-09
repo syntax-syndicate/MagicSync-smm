@@ -122,6 +122,11 @@ export const useDashboardNavigation = () => {
             label: menuData.menu.aitools,
             to: '/app/ai-tools/content-split',
             icon: 'i-lucide-sparkles'
+          },
+          {
+            label: menuData.menu.growthStrategies,
+            to: '/app/ai-tools/growth-stratergy',
+            icon: 'i-lucide-box'
           }
         ]
       },

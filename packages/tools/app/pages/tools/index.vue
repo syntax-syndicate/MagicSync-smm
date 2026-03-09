@@ -42,6 +42,13 @@ const posts = ref([
     date: '2026-01-01',
     to: "/tools/text-behind-image-free"
   },
+  {
+    title: 'Audio Transcription',
+    description: 'Transcribe audio and video files to text with timestamps using AI',
+    image: '/img/audio-transcription.png',
+    date: '2026-03-09',
+    to: "/tools/audio-transcription"
+  },
 ])
 const { t } = useI18n()
 useHead({

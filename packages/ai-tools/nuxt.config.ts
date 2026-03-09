@@ -24,7 +24,7 @@ export default defineNuxtConfig({
     name: 'BaseAITools',
   },
   extends: ['@local-monorepo/db', '@local-monorepo/ui', '@local-monorepo/auth'],
-  modules: ['@nuxtjs/i18n', 'evlog/nuxt'],
+  modules: ['@nuxtjs/i18n', 'evlog/nuxt','comark/nuxt'],
   i18n: {
     vueI18n: join(currentDir, './translations/i18n.config.ts'),
     baseUrl: process.env.NUXT_APP_URL,

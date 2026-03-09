@@ -1,3 +1,4 @@
+import { $fetch } from 'ofetch';
 /**
  *
  * Component Description: Composable managing higher-level actions like AI health checks and publishing
@@ -21,31 +22,16 @@ export const useContentPipelineManagement = () => {
     if (!topic || !scriptContent) return null
     isCheckingHealth.value = true
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      const mockResult: HookHealthResult = {
-        overallScore: 85,
-        metrics: {
-          hookStrength: 90,
-          relevance: 80,
-          retention: 85,
-        },
-        feedback: "Excellent hook strength! The topic relevance is high, but the transition to the body could be slightly smoother for better retention.",
-        adjustments: [
-          "Lead with the core benefit more explicitly in the first 5 seconds.",
-          "Use a stronger curiosity gap in the second sentence.",
-          "Ensure the tone matches the chosen hook style (The Storyteller)."
-        ],
-        improvedScript: `[IMPROVED] ${scriptContent}`,
-        alternativeVersions: [
-          {
-            hookName: "The Curiosity Gap",
-            predictedRetention: 88,
-            script: `Did you know that most creative people suffer from [X]? I found a way to fix it in 30 days...\n\n${scriptContent}`,
-            reasoning: "Creates a stronger psychological urge to know more."
-          }
-        ]
-      }
-      return mockResult
+      const result: HookHealthResult = await $fetch("/api/v1/ai/hook-health", {
+        method: "POST",
+        body: {
+          topic,
+          hookName: selectedHook.name,
+          hooks,
+          script: scriptContent
+        }
+      })
+      return result
     } finally {
       isCheckingHealth.value = false
     }

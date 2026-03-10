@@ -28,6 +28,8 @@ const selected = defineModel<Asset[]>('selected', {
 })
 
 
+const selectedTab = ref('local')
+
 const HandleSelect = (asset: Asset) => {
   if (selected.value.includes(asset)) {
     selected.value = selected.value.filter(item => item.id !== asset.id)
@@ -74,7 +76,6 @@ const items = [{
   slot: 'google-drive' as const
 }]
 
-const selectedTab = ref('local')
 </script>
 
 <template>

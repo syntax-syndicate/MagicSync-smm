@@ -519,3 +519,66 @@ AS WELL AS MAKE THE UI IMPLEMENTATION FROM MOBILE FIRST STAND POINT, AND DONT HA
 For endpoints for create-update you can create zod validation objects of what we expect for the body and return the errors base on the validation as
 well the front end need to handle the validation errors as well with toast with the validation error details 
 or if there are any error the front end need to handle those with a toas notfication 
+
+## UTabs Usage Rules
+
+When using UTabs component, always follow these patterns:
+
+- Use `v-model="activeTab"` to bind the selected tab value (create a ref like `const activeTab = ref('value')`)
+- Define items array with `slot` property for each tab: `{ label: 'Label', value: 'value', icon: 'icon', slot: 'value' as const }`
+- Use named slots `<template #<value>>` for the tab panel content (e.g., `#text`, `#json`)
+- Use optional `<template #default="{ item }">` to customize the tab button appearance
+- Each tab item must have a unique `value` property and matching `slot`
+
+Example (simple - no custom tab button):
+```vue
+<script setup>
+const activeTab = ref('text')
+
+const tabs = [
+  { label: 'Text', value: 'text', icon: 'i-lucide-file-text', slot: 'text' as const },
+  { label: 'JSON', value: 'json', icon: 'i-lucide-braces', slot: 'json' as const },
+]
+</script>
+
+<template>
+  <UTabs v-model="activeTab" :items="tabs">
+    <template #text>
+      <div>Text content here</div>
+    </template>
+
+    <template #json>
+      <div>JSON content here</div>
+    </template>
+  </UTabs>
+</template>
+```
+
+Example (custom tab button):
+```vue
+<script setup>
+const activeTab = ref('local')
+
+const items = [{
+  label: 'Local',
+  icon: 'lucide:folder',
+  value: 'local',
+  slot: 'local' as const
+}]
+</script>
+
+<template>
+  <UTabs v-model="activeTab" :items="items">
+    <template #default="{ item }">
+      <div class="flex items-center gap-2">
+        <Icon :name="item.icon" class="w-4 h-4" />
+        <span>{{ item.label }}</span>
+      </div>
+    </template>
+
+    <template #local>
+      <div>Local content</div>
+    </template>
+  </UTabs>
+</template>
+```

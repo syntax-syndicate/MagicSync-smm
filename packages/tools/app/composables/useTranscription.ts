@@ -40,9 +40,9 @@ export type TranscriptionFile = {
 	error: string | null
 }
 
-export type ModelKey = 'tiny' | 'tinyEn' | 'base' | 'baseEn' | 'small' | 'smallEn' | 'medium' | 'mediumEn' | 'large' | 'largeV2' | 'largeV3'
+export type ModelKey = 'tiny' | 'tinyEn' | 'base' | 'baseEn' | 'small' | 'smallEn' | 'medium' | 'mediumEn' | 'large' | 'largeV2' | 'largeV3' | 'timestamped'
 
-export const AVAILABLE_MODELS: Record<ModelKey, { name: string; lang: string; size: string }> = {
+export const AVAILABLE_MODELS: Record<ModelKey, { name: string; lang: string | null; size: string }> = {
 	tiny: { name: 'Xenova/whisper-tiny', lang: 'en', size: '39 MB' },
 	tinyEn: { name: 'Xenova/whisper-tiny.en', lang: 'en', size: '39 MB' },
 	base: { name: 'Xenova/whisper-base', lang: 'en', size: '74 MB' },
@@ -54,6 +54,7 @@ export const AVAILABLE_MODELS: Record<ModelKey, { name: string; lang: string; si
 	large: { name: 'Xenova/whisper-large', lang: 'en', size: '1550 MB' },
 	largeV2: { name: 'Xenova/whisper-large-v2', lang: 'en', size: '1550 MB' },
 	largeV3: { name: 'Xenova/whisper-large-v3', lang: 'en', size: '1550 MB' },
+	timestamped: { name: 'onnx-community/whisper-base_timestamped', lang: null, size: '74 MB' },
 }
 
 export const SUPPORTED_AUDIO_FORMATS = [
@@ -108,7 +109,7 @@ export const LANGUAGES = [
 export const useTranscription = () => {
 	const workerRef = ref<Worker | null>(null)
 	const isModelLoaded = ref(false)
-	const currentModel = ref<ModelKey>('tiny')
+	const currentModel = ref<ModelKey>('timestamped')
 	const currentLanguage = ref('en')
 	const modelProgress = ref(0)
 
@@ -163,6 +164,15 @@ export const useTranscription = () => {
 				}
 				break
 
+			case 'partial':
+				if (result) {
+					const currentFile = files.value.find(f => f.status === 'transcribing')
+					if (currentFile) {
+						currentFile.result = result
+					}
+				}
+				break
+
 			case 'result':
 				if (result) {
 					console.log('Received transcription result:', result)
@@ -192,19 +202,19 @@ export const useTranscription = () => {
 		}
 	}
 
-	const loadModel = async (modelKey: ModelKey = 'tiny') => {
+	const loadModel = async (modelKey: ModelKey = 'timestamped') => {
 		initWorker()
 
 		if (!workerRef.value) return
 
-		const modelConfig = AVAILABLE_MODELS[modelKey] || AVAILABLE_MODELS.tiny
+		const modelConfig = AVAILABLE_MODELS[modelKey] || AVAILABLE_MODELS.timestamped
 
 		workerRef.value.postMessage({
 			type: 'loadModel',
 			payload: {
 				model: modelKey,
 				modelName: modelConfig.name,
-				language: modelConfig.lang
+				language: modelConfig.lang || currentLanguage.value
 			}
 		})
 	}
@@ -291,12 +301,147 @@ export const useTranscription = () => {
 	}
 
 	async function decodeAudioFile(file: File): Promise<Float32Array> {
+		const isVideoFile = file.type.startsWith('video/')
+		
+		if (isVideoFile) {
+			return decodeVideoAudio(file)
+		}
+
 		const arrayBuffer = await file.arrayBuffer()
 		const audioContext = new AudioContext()
 		const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
 		
 		const channelData = audioBuffer.getChannelData(0)
 		return channelData
+	}
+
+	async function decodeVideoAudio(file: File): Promise<Float32Array> {
+		const arrayBuffer = await file.arrayBuffer()
+		
+		class MP4Demuxer {
+			private buffer: ArrayBuffer
+			private view: DataView
+			private position = 0
+			private audioTrack: { id: number; timescale: number; duration: number; chunks: { offset: number; size: number; duration: number }[] } | null = null
+
+			constructor(buffer: ArrayBuffer) {
+				this.buffer = buffer
+				this.view = new DataView(buffer)
+			}
+
+			async getAudioTrack() {
+				if (!this.parseBoxes()) {
+					return null
+				}
+				return this.audioTrack
+			}
+
+			private parseBoxes(): boolean {
+				while (this.position < this.buffer.byteLength) {
+					const size = this.view.getUint32(this.position)
+					const type = String.fromCharCode(
+						this.view.getUint8(this.position + 4),
+						this.view.getUint8(this.position + 5),
+						this.view.getUint8(this.position + 6),
+						this.view.getUint8(this.position + 7)
+					)
+
+					if (type === 'moov') {
+						this.position += size
+						continue
+					}
+
+					if (type === 'trak') {
+						const track = this.parseTrack()
+						if (track) {
+							this.audioTrack = track
+							return true
+						}
+					}
+
+					if (size === 0) {
+						this.position = this.buffer.byteLength
+					} else {
+						this.position += size
+					}
+				}
+				return false
+			}
+
+			private parseTrack(): { id: number; timescale: number; duration: number; chunks: { offset: number; size: number; duration: number }[] } | null {
+				const start = this.position
+				let trackId = 0
+				let timescale = 0
+				let duration = 0
+				let hasAudio = false
+				const chunks: { offset: number; size: number; duration: number }[] = []
+
+				while (this.position < start + 256 && this.position < this.buffer.byteLength) {
+					const size = this.view.getUint32(this.position)
+					const type = String.fromCharCode(
+						this.view.getUint8(this.position + 4),
+						this.view.getUint8(this.position + 5),
+						this.view.getUint8(this.position + 6),
+						this.view.getUint8(this.position + 7)
+					)
+
+					if (type === 'tkhd') {
+						trackId = this.view.getUint32(this.position + 12)
+					} else if (type === 'mdhd') {
+						timescale = this.view.getUint32(this.position + 16)
+						duration = this.view.getUint32(this.position + 20)
+					} else if (type === 'hdlr') {
+						const handlerType = String.fromCharCode(
+							this.view.getUint8(this.position + 8),
+							this.view.getUint8(this.position + 9),
+							this.view.getUint8(this.position + 10),
+							this.view.getUint8(this.position + 11)
+						)
+						hasAudio = handlerType === 'soun'
+					} else if (type === 'stsc') {
+						const entryCount = this.view.getUint32(this.position + 12)
+						let offset = this.position + 16
+						for (let i = 0; i < entryCount && offset < this.position + size; i++) {
+							const firstChunk = this.view.getUint32(offset)
+							const samplesPerChunk = this.view.getUint32(offset + 4)
+							offset += 12
+						}
+					} else if (type === 'stsz' || type === 'stco') {
+						break
+					}
+
+					this.position += size || 1
+				}
+
+				if (!hasAudio) return null
+
+				return { id: trackId, timescale, duration, chunks }
+			}
+
+			async readChunk(): Promise<number[] | null> {
+				return null
+			}
+
+			dispose() {}
+		}
+
+		const mp4Demuxer = new MP4Demuxer(arrayBuffer)
+		const track = await mp4Demuxer.getAudioTrack()
+		
+		if (!track) {
+			throw new Error('No audio track found in video file')
+		}
+
+		mp4Demuxer.dispose()
+		
+		try {
+			const audioContext = new AudioContext()
+			const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
+			const channelData = audioBuffer.getChannelData(0)
+			return channelData
+		} catch {
+			throw new Error('Failed to decode audio from video. The video format may not be supported.')
+		}
 	}
 
 	const transcribeAll = async (language?: string) => {

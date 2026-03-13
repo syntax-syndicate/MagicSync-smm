@@ -1,6 +1,6 @@
 import { Canvas, filters, Group } from 'fabric';
 import { BaseFabricPlugin, FabricEditor, type FabricObjectWithName } from '../FabricEditor';
-import { CorePlugin } from '../CorePlugin';
+import type { CorePlugin } from '../CorePlugin';
 
 export class ExportPlugin extends BaseFabricPlugin {
   static readonly pluginName = 'export';

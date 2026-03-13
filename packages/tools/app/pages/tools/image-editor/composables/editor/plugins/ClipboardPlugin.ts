@@ -1,4 +1,5 @@
-import { Canvas, FabricObject, util } from 'fabric';
+import type { FabricObject} from 'fabric';
+import { Canvas, util } from 'fabric';
 import { BaseFabricPlugin, FabricEditor } from '../FabricEditor';
 
 export class ClipboardPlugin extends BaseFabricPlugin {

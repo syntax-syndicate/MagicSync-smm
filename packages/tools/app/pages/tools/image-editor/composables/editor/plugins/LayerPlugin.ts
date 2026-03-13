@@ -1,4 +1,4 @@
-import { Canvas, FabricObject } from 'fabric';
+import type { Canvas, FabricObject } from 'fabric';
 import { BaseFabricPlugin, FabricEditor, type FabricObjectWithName } from '../FabricEditor';
 
 export class LayerPlugin extends BaseFabricPlugin {

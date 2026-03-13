@@ -1,226 +1,183 @@
-/**
- * Whisper Transcription Worker
- * Handles audio transcription using Transformers.js with streaming results
- *
- * Key features:
- * - Model caching with singleton pattern
- * - Streaming partial results via callbacks
- * - Proper chunk handling with timestamps
- * - Support for multiple model configurations
- */
+import { pipeline, env, AutomaticSpeechRecognitionPipeline, WhisperTextStreamer } from '@huggingface/transformers';
 
-import { pipeline, env, type AutomaticSpeechRecognitionPipeline } from '@huggingface/transformers'
+// Disable local models
+env.allowLocalModels = false;
 
-type DynamicAny = any
+export const MODEL_CONFIGS = [
+  { id: 'onnx-community/whisper-tiny', name: 'Whisper Tiny', lang: 'en', isMultilingual: true, size: 'small' },
+  { id: 'onnx-community/whisper-tiny.en', name: 'Whisper Tiny (English)', lang: null, isMultilingual: false, size: 'small' },
+  { id: 'onnx-community/whisper-base', name: 'Whisper Base', lang: 'en', isMultilingual: true, size: 'small' },
+  { id: 'onnx-community/whisper-base.en', name: 'Whisper Base (English)', lang: null, isMultilingual: false, size: 'small' },
+  { id: 'onnx-community/whisper-small', name: 'Whisper Small', lang: 'en', isMultilingual: true, size: 'small' },
+  { id: 'onnx-community/whisper-small.en', name: 'Whisper Small (English)', lang: null, isMultilingual: false, size: 'small' },
+  { id: 'onnx-community/whisper-medium', name: 'Whisper Medium', lang: 'en', isMultilingual: true, size: 'large' },
+  { id: 'onnx-community/whisper-medium.en', name: 'Whisper Medium (English)', lang: null, isMultilingual: false, size: 'large' },
+  { id: 'onnx-community/whisper-large', name: 'Whisper Large', lang: 'en', isMultilingual: true, size: 'large' },
+  { id: 'onnx-community/whisper-large-v2', name: 'Whisper Large v2', lang: 'en', isMultilingual: true, size: 'large' },
+  { id: 'onnx-community/whisper-large-v3', name: 'Whisper Large v3', lang: 'en', isMultilingual: true, size: 'large' },
+  { id: 'distil-whisper/distil-medium.en', name: 'Distil Whisper Medium (English)', lang: null, isMultilingual: false, size: 'large' },
+  { id: 'distil-whisper/distil-large-v2', name: 'Distil Whisper Large v2', lang: null, isMultilingual: false, size: 'large' },
+  { id: 'onnx-community/whisper-base_timestamped', name: 'Whisper Base (Timestamped)', lang: null, isMultilingual: true, size: 'small' },
+];
 
-env.allowLocalModels = false
-env.useBrowserCache = true
-;(env as DynamicAny).logLevel = 'error'
+class TranscriptionPipeline {
+  private static instance: TranscriptionPipeline;
+  private transcriber: AutomaticSpeechRecognitionPipeline | null = null;
+  private currentModel: string = '';
+  private hasWebGPU: boolean | null = null;
 
-const PER_DEVICE_CONFIG = {
-  webgpu: {
-    dtype: {
-      encoder_model: 'fp32',
-      decoder_model_merged: 'q4',
-    },
-    device: 'webgpu',
-  },
-  wasm: {
-    dtype: 'q8',
-    device: 'wasm',
-  },
-}
+  private constructor() {}
 
-const MODEL_CONFIGS = {
-  tiny: { name: 'Xenova/whisper-tiny', lang: 'en', isMultilingual: true },
-  tinyEn: { name: 'Xenova/whisper-tiny.en', lang: null, isMultilingual: false },
-  base: { name: 'Xenova/whisper-base', lang: 'en', isMultilingual: true },
-  baseEn: { name: 'Xenova/whisper-base.en', lang: null, isMultilingual: false },
-  small: { name: 'Xenova/whisper-small', lang: 'en', isMultilingual: true },
-  smallEn: { name: 'Xenova/whisper-small.en', lang: null, isMultilingual: false },
-  medium: { name: 'Xenova/whisper-medium', lang: 'en', isMultilingual: true },
-  mediumEn: { name: 'Xenova/whisper-medium.en', lang: null, isMultilingual: false },
-  large: { name: 'Xenova/whisper-large', lang: 'en', isMultilingual: true },
-  largeV2: { name: 'Xenova/whisper-large-v2', lang: 'en', isMultilingual: true },
-  largeV3: { name: 'Xenova/whisper-large-v3', lang: 'en', isMultilingual: true },
-  distilMediumEn: { name: 'distil-whisper/distil-medium.en', lang: null, isMultilingual: false },
-  distilLargeV2: { name: 'distil-whisper/distil-large-v2', lang: null, isMultilingual: false },
-  timestamped: { name: 'onnx-community/whisper-base_timestamped', lang: null, isMultilingual: true },
-}
+  public static getInstance(): TranscriptionPipeline {
+    if (!TranscriptionPipeline.instance) {
+      TranscriptionPipeline.instance = new TranscriptionPipeline();
+    }
+    return TranscriptionPipeline.instance;
+  }
 
-class PipelineSingleton {
-  static instance: AutomaticSpeechRecognitionPipeline | null = null
-  static currentModelId: string = 'tiny'
-  static currentModelConfig: { isMultilingual: boolean } | null = null
-
-  static async getInstance(
-    modelId: string,
-    progressCallback: ((progress: DynamicAny) => void) | null = null,
-    device: 'webgpu' | 'wasm' = 'wasm',
-    modelKey: string = 'tiny'
-  ): Promise<AutomaticSpeechRecognitionPipeline> {
-    const modelConfig = MODEL_CONFIGS[modelKey as keyof typeof MODEL_CONFIGS] || MODEL_CONFIGS.tiny
-    this.currentModelConfig = { isMultilingual: modelConfig.isMultilingual }
-
-    if (!this.instance || this.currentModelId !== modelId) {
-      this.currentModelId = modelId
-      this.instance = null
-
-      const progressCallbackFn = progressCallback
-        ? (p: DynamicAny) => {
-            const value = Math.min((p?.progress ?? 0) * 100, 100)
-            progressCallback({ progress: Math.round(value) })
-          }
-        : undefined
-
-      const deviceConfig = PER_DEVICE_CONFIG[device as keyof typeof PER_DEVICE_CONFIG]
-      const options: DynamicAny = {
-        ...deviceConfig,
-        progress_callback: progressCallbackFn,
+  public async checkWebGPU() {
+    if (this.hasWebGPU !== null) return this.hasWebGPU;
+    try {
+      if ('gpu' in navigator) {
+        const adapter = await (navigator as any).gpu.requestAdapter();
+        this.hasWebGPU = !!adapter;
+      } else {
+        this.hasWebGPU = false;
       }
+    } catch (e) {
+      this.hasWebGPU = false;
+    }
+    return this.hasWebGPU;
+  }
 
-      this.instance = await pipeline('automatic-speech-recognition', modelId, options) as unknown as AutomaticSpeechRecognitionPipeline
+  public async getAvailableModels() {
+    const webgpuSupported = await this.checkWebGPU();
+
+    return MODEL_CONFIGS.filter(model => {
+      // If WebGPU is not supported, only return small models to prevent browser crashing/freezing
+      if (!webgpuSupported && model.size === 'large') {
+        return false;
+      }
+      return true;
+    }).map(m => ({ id: m.id, name: m.name, isMultilingual: m.isMultilingual }));
+  }
+
+  public async loadModel(modelId: string) {
+    if (this.currentModel === modelId && this.transcriber) {
+      return this.transcriber;
     }
 
-    return this.instance
-  }
+    const webgpuSupported = await this.checkWebGPU();
 
-  static async warmup(device: 'webgpu' | 'wasm', language: string | null): Promise<void> {
-    if (!this.instance || device !== 'wasm') return
-
-    const warmupLanguage = language || 'en'
-    // await this.instance(new Float32Array(1000), { language: warmupLanguage })
-  }
-
-  static reset(): void {
-    this.instance = null
-    this.currentModelId = ''
-    this.currentModelConfig = null
-  }
-}
-
-function sendStatus(status: string, progress = 0, message = ''): void {
-  self.postMessage({ type: 'status', status, progress, message })
-}
-
-function sendResult(result: DynamicAny): void {
-  self.postMessage({ type: 'result', result })
-}
-
-function sendError(error: string): void {
-  self.postMessage({ type: 'error', error })
-}
-
-async function loadModel(data: { model?: string; device?: string }): Promise<void> {
-  const device = (data.device as 'webgpu' | 'wasm') || 'wasm'
-  const modelKey = data.model || 'tiny'
-  const modelConfig = MODEL_CONFIGS[modelKey as keyof typeof MODEL_CONFIGS] || MODEL_CONFIGS.timestamped
-  const modelId = modelConfig.name
-
-  sendStatus('loading', 0, `Loading model (${device})...`)
-
-  try {
-    const transcriber = await PipelineSingleton.getInstance(
-      modelId,
-      (progress) => {
-        console.log(progress)
-
-        sendStatus('loading', progress.progress, `Loading model: ${progress.progress}%`)
+    // Load new model
+    this.transcriber = await (pipeline as any)('automatic-speech-recognition', modelId, {
+      device: webgpuSupported ? 'webgpu' : 'wasm',
+      dtype: webgpuSupported ? 'fp32' : 'q8',
+      progress_callback: (progress: any) => {
+        self.postMessage({ type: 'progress', progress: progress.progress, status: progress.status });
       },
-      device,
-      modelKey
-    )
+    });
+    this.currentModel = modelId;
 
-    sendStatus('loading', 90, 'Warming up model...')
-    await PipelineSingleton.warmup(device, modelConfig.lang)
-
-    sendStatus('loaded', 100, 'Model ready')
-  } catch (error: DynamicAny) {
-    console.error('Failed to load model:', error)
-    sendError(error.message || 'Failed to load model')
+    return this.transcriber;
   }
-}
 
-async function runTranscription(data: { audio: number[]; language?: string | null; subtask?: string }): Promise<void> {
-  const audioData = new Float32Array(data.audio || [])
-  const language = data.language
-  const subtask = data.subtask || 'transcribe'
+  public async transcribe(audio: Float32Array, language: string, id: string) {
+    if (!this.transcriber) {
+      throw new Error('Transcriber not initialized. Call loadModel first.');
+    }
 
-  sendStatus('transcribing', 0)
+    const modelConfig = MODEL_CONFIGS.find(m => m.id === this.currentModel);
+    const isMultilingual = modelConfig ? modelConfig.isMultilingual : true;
 
-  try {
-    const transcriber = await PipelineSingleton.getInstance(
-      PipelineSingleton.currentModelId,
-      null,
-      'wasm',
-      'timestamped'
-    )
+    const segments: any[] = [];
+    let partialText = '';
+    let currentChunkStart = 0;
 
-    const isMultilingual = PipelineSingleton.currentModelConfig?.isMultilingual ?? true
+    const tokenizer = (this.transcriber as any).tokenizer || (this.transcriber as any).processor?.tokenizer;
 
-    const options: DynamicAny = {
-      return_timestamps: true,
+    const streamer = new WhisperTextStreamer(tokenizer, {
+      time_precision: 0.02,
+      on_chunk_start: (time: number) => {
+        currentChunkStart = time;
+      },
+      on_chunk_end: (time: number) => {
+        segments.push({
+          id: segments.length,
+          start: currentChunkStart,
+          end: time,
+          text: partialText.trim(),
+        });
+        partialText = '';
+        self.postMessage({ type: 'chunk', id, segments });
+      },
+      callback_function: (text: string) => {
+        partialText += text;
+        self.postMessage({ type: 'partial', id, text: partialText });
+      }
+    });
+
+    const result = await this.transcriber(audio, {
       chunk_length_s: 30,
       stride_length_s: 5,
-    }
+      language: isMultilingual ? (language === 'auto' ? null : language) : 'english',
+      task: 'transcribe',
+      return_timestamps: true,
+      streamer: streamer,
+    } as any) as any;
 
-    if (isMultilingual && language) {
-      options.language = language
-      options.task = subtask
-    }
-
-    const result = await transcriber(audioData, options)
-
-    if (result) {
-      const processedResult = processResult(result)
-      sendStatus('done', 100)
-      sendResult(processedResult)
-    }
-  } catch (error: DynamicAny) {
-    console.error('Transcription error:', error)
-    sendError(error.message || 'Transcription failed')
+    return result.chunks.map((chunk: any, index: number) => ({
+      id: index,
+      start: chunk.timestamp[0],
+      end: chunk.timestamp[1] || chunk.timestamp[0] + 5,
+      text: chunk.text,
+    }));
   }
 }
 
-function processResult(result: DynamicAny) {
-  const text = result.text || ''
-  const chunks = []
+const pipelineInstance = TranscriptionPipeline.getInstance();
 
-  if (result.chunks) {
-    for (const chunk of result.chunks) {
-      if (chunk.timestamp && chunk.text?.trim()) {
-        const start = Array.isArray(chunk.timestamp) ? chunk.timestamp[0] : chunk.timestamp
-        const end = Array.isArray(chunk.timestamp) ? chunk.timestamp[1] : chunk.timestamp
-        chunks.push({ text: chunk.text.trim(), start, end })
-      }
+let isProcessing = false;
+const messageQueue: MessageEvent[] = [];
+
+const processNextMessage = async () => {
+  if (isProcessing || messageQueue.length === 0) return;
+
+  isProcessing = true;
+  const e = messageQueue.shift()!;
+
+  const { type, audio, model, language } = e.data;
+
+  try {
+    switch (type) {
+      case 'get_models':
+        const models = await pipelineInstance.getAvailableModels();
+        self.postMessage({ type: 'models_list', models });
+        break;
+
+      case 'init':
+      case 'change_model':
+        await pipelineInstance.loadModel(model || 'onnx-community/whisper-tiny');
+        self.postMessage({ type: 'ready' });
+        break;
+
+      case 'transcribe':
+        const finalSegments = await pipelineInstance.transcribe(audio, language, e.data.id);
+        self.postMessage({ type: 'complete', id: e.data.id, segments: finalSegments });
+        break;
+
+      default:
+        console.warn(`Unknown message type: ${type}`);
     }
+  } catch (err: any) {
+    self.postMessage({ type: 'error', id: e.data.id, error: err.message });
+  } finally {
+    isProcessing = false;
+    processNextMessage();
   }
+};
 
-  return { text: text.trim(), chunks }
-}
-
-async function unloadModel(): Promise<void> {
-  PipelineSingleton.reset()
-  sendStatus('unloaded', 100)
-}
-
-self.onmessage = async (event: MessageEvent) => {
-  const { type, payload } = event.data
-
-  switch (type) {
-    case 'loadModel':
-      await loadModel(payload)
-      break
-
-    case 'transcribe':
-      await runTranscription(payload)
-      break
-
-    case 'unloadModel':
-      await unloadModel()
-      break
-
-    default:
-      sendError(`Unknown message type: ${type}`)
-  }
-}
+self.onmessage = (e: MessageEvent) => {
+  messageQueue.push(e);
+  processNextMessage();
+};

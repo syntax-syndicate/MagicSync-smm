@@ -251,12 +251,14 @@ const HandleUpdateGradientAngle = (angle?: number) => {
 
     <!-- Tabs -->
     <div class="flex border-b border-gray-200 dark:border-gray-800">
-      <button class="flex-1 py-3 text-xs font-medium border-b-2 transition-colors"
+      <button
+class="flex-1 py-3 text-xs font-medium border-b-2 transition-colors"
         :class="activeTab === 'design' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
         @click="activeTab = 'design'">
         Design
       </button>
-      <button class="flex-1 py-3 text-xs font-medium border-b-2 transition-colors"
+      <button
+class="flex-1 py-3 text-xs font-medium border-b-2 transition-colors"
         :class="activeTab === 'export' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
         @click="activeTab = 'export'">
         Export
@@ -272,14 +274,18 @@ const HandleUpdateGradientAngle = (angle?: number) => {
         <div v-if="!isNoSelection">
           <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Align</h3>
           <div class="grid grid-cols-4 gap-1 mb-2">
-            <UButton size="xs" variant="outline" icon="lucide:align-start-vertical" @click="HandleAlignObjects('left')"
-              data-testid="align-left" />
-            <UButton size="xs" variant="outline" icon="lucide:align-center-vertical"
-              @click="HandleAlignObjects('center')" data-testid="align-center" />
-            <UButton size="xs" variant="outline" icon="lucide:align-end-vertical" @click="HandleAlignObjects('right')"
-              data-testid="align-right" />
-            <UButton size="xs" variant="outline" icon="lucide:align-start-horizontal" @click="HandleAlignObjects('top')"
-              data-testid="align-top" />
+            <UButton
+size="xs" variant="outline" icon="lucide:align-start-vertical" data-testid="align-left"
+              @click="HandleAlignObjects('left')" />
+            <UButton
+size="xs" variant="outline" icon="lucide:align-center-vertical"
+              data-testid="align-center" @click="HandleAlignObjects('center')" />
+            <UButton
+size="xs" variant="outline" icon="lucide:align-end-vertical" data-testid="align-right"
+              @click="HandleAlignObjects('right')" />
+            <UButton
+size="xs" variant="outline" icon="lucide:align-start-horizontal" data-testid="align-top"
+              @click="HandleAlignObjects('top')" />
           </div>
           <div class="grid grid-cols-2 gap-2">
             <UButton size="xs" variant="ghost" class="text-[10px]" @click="HandleDistributeObjects('horizontal')">Dist.
@@ -319,58 +325,71 @@ const HandleUpdateGradientAngle = (angle?: number) => {
           </div>
           <!-- Flip & Rotate -->
           <div class="grid grid-cols-4 gap-1 my-4">
-            <UButton size="xs" variant="outline" icon="lucide:flip-horizontal" @click="HandleFlipObjects('horizontal')"
-              data-testid="btn-flip-h" />
-            <UButton size="xs" variant="outline" icon="lucide:flip-vertical" @click="HandleFlipObjects('vertical')"
-              data-testid="btn-flip-v" />
-            <UButton size="xs" variant="outline" icon="lucide:rotate-ccw" @click="HandleRotateObjects('left')"
-              data-testid="btn-rotate-l" />
-            <UButton size="xs" variant="outline" icon="lucide:rotate-cw" @click="HandleRotateObjects('right')"
-              data-testid="btn-rotate-r" />
+            <UButton
+size="xs" variant="outline" icon="lucide:flip-horizontal" data-testid="btn-flip-h"
+              @click="HandleFlipObjects('horizontal')" />
+            <UButton
+size="xs" variant="outline" icon="lucide:flip-vertical" data-testid="btn-flip-v"
+              @click="HandleFlipObjects('vertical')" />
+            <UButton
+size="xs" variant="outline" icon="lucide:rotate-ccw" data-testid="btn-rotate-l"
+              @click="HandleRotateObjects('left')" />
+            <UButton
+size="xs" variant="outline" icon="lucide:rotate-cw" data-testid="btn-rotate-r"
+              @click="HandleRotateObjects('right')" />
           </div>
         </div>
 
         <!-- TEXT PROPERTIES -->
         <div v-if="isTextLayerActive">
-          <hr class="border-gray-100 dark:border-gray-800 my-4" />
+          <hr class="border-gray-100 dark:border-gray-800 my-4" >
           <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Text</h3>
 
           <div class="space-y-3">
-            <USelect v-model="localTextSettings.fontFamily" :options="fontFamilies" size="xs"
-              @change="updateTextSettings({ fontFamily: localTextSettings.fontFamily })"
-              data-testid="select-font-family" />
+            <USelect
+v-model="localTextSettings.fontFamily" :options="fontFamilies" size="xs"
+              data-testid="select-font-family"
+              @change="updateTextSettings({ fontFamily: localTextSettings.fontFamily })" />
 
             <div class="flex items-center gap-2">
-              <UInput v-model.number="localTextSettings.fontSize" type="number" size="xs" class="w-16"
-                @change="updateTextSettings({ fontSize: localTextSettings.fontSize })" data-testid="input-font-size" />
+              <UInput
+v-model.number="localTextSettings.fontSize" type="number" size="xs" class="w-16"
+                data-testid="input-font-size" @change="updateTextSettings({ fontSize: localTextSettings.fontSize })" />
               <div class="relative w-8 h-8 rounded overflow-hidden border border-gray-200 dark:border-gray-700">
-                <input type="color" v-model="localTextSettings.fill"
+                <input
+v-model="localTextSettings.fill" type="color"
                   class="absolute -top-1/2 -left-1/2 w-[200%] h-[200%] cursor-pointer p-0 border-0"
-                  @input="updateTextSettings({ fill: localTextSettings.fill })" />
+                  @input="updateTextSettings({ fill: localTextSettings.fill })" >
               </div>
             </div>
 
             <div class="flex gap-1">
-              <UButton :variant="localTextSettings.fontWeight === 'bold' ? 'solid' : 'outline'" size="xs"
+              <UButton
+:variant="localTextSettings.fontWeight === 'bold' ? 'solid' : 'outline'" size="xs"
                 icon="lucide:bold" class="flex-1"
-                @click="() => { localTextSettings.fontWeight = localTextSettings.fontWeight === 'bold' ? 'normal' : 'bold'; updateTextSettings({ fontWeight: localTextSettings.fontWeight }) }"
-                data-testid="btn-bold" />
-              <UButton :variant="localTextSettings.fontStyle === 'italic' ? 'solid' : 'outline'" size="xs"
+                data-testid="btn-bold"
+                @click="() => { localTextSettings.fontWeight = localTextSettings.fontWeight === 'bold' ? 'normal' : 'bold'; updateTextSettings({ fontWeight: localTextSettings.fontWeight }) }" />
+              <UButton
+:variant="localTextSettings.fontStyle === 'italic' ? 'solid' : 'outline'" size="xs"
                 icon="lucide:italic" class="flex-1"
-                @click="() => { localTextSettings.fontStyle = localTextSettings.fontStyle === 'italic' ? 'normal' : 'italic'; updateTextSettings({ fontStyle: localTextSettings.fontStyle }) }"
-                data-testid="btn-italic" />
-              <UButton :variant="localTextSettings.underline ? 'solid' : 'outline'" size="xs" icon="lucide:underline"
+                data-testid="btn-italic"
+                @click="() => { localTextSettings.fontStyle = localTextSettings.fontStyle === 'italic' ? 'normal' : 'italic'; updateTextSettings({ fontStyle: localTextSettings.fontStyle }) }" />
+              <UButton
+:variant="localTextSettings.underline ? 'solid' : 'outline'" size="xs" icon="lucide:underline"
                 class="flex-1"
-                @click="() => { localTextSettings.underline = !localTextSettings.underline; updateTextSettings({ underline: localTextSettings.underline }) }"
-                data-testid="btn-underline" />
+                data-testid="btn-underline"
+                @click="() => { localTextSettings.underline = !localTextSettings.underline; updateTextSettings({ underline: localTextSettings.underline }) }" />
             </div>
 
             <section size="xs" class="w-full flex">
-              <UButton :variant="localTextSettings.textAlign === 'left' ? 'solid' : 'outline'" icon="lucide:align-left"
+              <UButton
+:variant="localTextSettings.textAlign === 'left' ? 'solid' : 'outline'" icon="lucide:align-left"
                 class="flex-1" @click="updateTextSettings({ textAlign: 'left' })" />
-              <UButton :variant="localTextSettings.textAlign === 'center' ? 'solid' : 'outline'"
+              <UButton
+:variant="localTextSettings.textAlign === 'center' ? 'solid' : 'outline'"
                 icon="lucide:align-center" class="flex-1" @click="updateTextSettings({ textAlign: 'center' })" />
-              <UButton :variant="localTextSettings.textAlign === 'right' ? 'solid' : 'outline'"
+              <UButton
+:variant="localTextSettings.textAlign === 'right' ? 'solid' : 'outline'"
                 icon="lucide:align-right" class="flex-1" @click="updateTextSettings({ textAlign: 'right' })" />
             </section>
           </div>
@@ -378,29 +397,32 @@ const HandleUpdateGradientAngle = (angle?: number) => {
 
         <!-- FILL (Shape/Text) -->
         <div v-if="!isNoSelection && !isImageLayerActive">
-          <hr class="border-gray-100 dark:border-gray-800 my-4" />
+          <hr class="border-gray-100 dark:border-gray-800 my-4" >
           <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Fill</h3>
           <div class="relative w-full h-8 rounded overflow-hidden border border-gray-200 dark:border-gray-700">
-            <input type="color" v-model="objectFill"
+            <input
+v-model="objectFill" type="color"
               class="absolute -top-1/2 -left-1/2 w-[200%] h-[200%] cursor-pointer p-0 border-0"
-              @input="handleObjectFillUpdate" data-testid="input-fill" />
+              data-testid="input-fill" @input="handleObjectFillUpdate" >
           </div>
         </div>
 
         <!-- STROKE -->
         <div v-if="!isNoSelection && !isTextLayerActive">
-          <hr class="border-gray-100 dark:border-gray-800 my-4" />
+          <hr class="border-gray-100 dark:border-gray-800 my-4" >
           <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Stroke</h3>
           <div class="space-y-2">
             <div class="flex justify-between items-center">
               <div class="relative w-8 h-8 rounded overflow-hidden border border-gray-200 dark:border-gray-700">
-                <input type="color" v-model="stroke.color"
+                <input
+v-model="stroke.color" type="color"
                   class="absolute -top-1/2 -left-1/2 w-[200%] h-[200%] cursor-pointer p-0 border-0"
-                  @input="handleStrokeUpdate" />
+                  @input="handleStrokeUpdate" >
               </div>
               <div class="flex items-center gap-1 w-16">
-                <UInput v-model.number="stroke.width" type="number" size="xs" class="text-right"
-                  @change="handleStrokeUpdate" data-testid="input-stroke-width" />
+                <UInput
+v-model.number="stroke.width" type="number" size="xs" class="text-right"
+                  data-testid="input-stroke-width" @change="handleStrokeUpdate" />
                 <span class="text-[10px] text-gray-400">px</span>
               </div>
             </div>
@@ -409,26 +431,28 @@ const HandleUpdateGradientAngle = (angle?: number) => {
 
         <!-- EFFECTS (Shadow) -->
         <div v-if="!isNoSelection">
-          <hr class="border-gray-100 dark:border-gray-800 my-4" />
+          <hr class="border-gray-100 dark:border-gray-800 my-4" >
           <div class="flex items-center justify-between mb-2">
             <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Effects</h3>
-            <UButton size="xs" variant="ghost" icon="lucide:plus"
-              @click="shadow.enabled = !shadow.enabled; handleShadowUpdate()" data-testid="add-shadow" />
+            <UButton
+size="xs" variant="ghost" icon="lucide:plus"
+              data-testid="add-shadow" @click="shadow.enabled = !shadow.enabled; handleShadowUpdate()" />
           </div>
 
           <div v-if="shadow.enabled" class="space-y-2 bg-gray-50 dark:bg-gray-800 p-2 rounded">
             <div class="flex justify-between items-center">
               <span class="text-xs">Shadow</span>
-              <USwitch size="xs" v-model="shadow.enabled" @update:model-value="handleShadowUpdate" />
+              <USwitch v-model="shadow.enabled" size="xs" @update:model-value="handleShadowUpdate" />
             </div>
             <div class="grid grid-cols-2 gap-2">
               <UInput v-model.number="shadow.offsetX" size="xs" placeholder="X" @change="handleShadowUpdate" />
               <UInput v-model.number="shadow.offsetY" size="xs" placeholder="Y" @change="handleShadowUpdate" />
               <UInput v-model.number="shadow.blur" size="xs" placeholder="Blur" @change="handleShadowUpdate" />
               <div class="relative w-full h-8 rounded-md overflow-hidden border border-gray-200 dark:border-gray-700">
-                <input type="color" v-model="shadow.color"
+                <input
+v-model="shadow.color" type="color"
                   class="absolute -top-1/2 -left-1/2 w-[200%] h-[200%] cursor-pointer p-0 border-0"
-                  @input="handleShadowUpdate" />
+                  @input="handleShadowUpdate" >
               </div>
             </div>
           </div>
@@ -436,9 +460,10 @@ const HandleUpdateGradientAngle = (angle?: number) => {
 
         <!-- AI TOOLS -->
         <div v-if="isImageLayerActive">
-          <hr class="border-gray-100 dark:border-gray-800 my-4" />
+          <hr class="border-gray-100 dark:border-gray-800 my-4" >
           <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">AI Tools</h3>
-          <UButton block variant="soft" icon="lucide:sparkles"
+          <UButton
+block variant="soft" icon="lucide:sparkles"
             :loading="status === 'loading' || status === 'processing'" @click="triggerRemoveBackground()">
             Remove Background
           </UButton>
@@ -446,19 +471,21 @@ const HandleUpdateGradientAngle = (angle?: number) => {
 
         <!-- IMAGE FILTERS -->
         <div v-if="isImageLayerActive">
-          <hr class="border-gray-100 dark:border-gray-800 my-4" />
+          <hr class="border-gray-100 dark:border-gray-800 my-4" >
 
           <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Filters</h3>
 
           <div class="space-y-4">
-            <USelect v-model="presetFilter" :options="['None', 'Grayscale', 'Sepia', 'Contrast']" size="xs"
+            <USelect
+v-model="presetFilter" :options="['None', 'Grayscale', 'Sepia', 'Contrast']" size="xs"
               @change="editor?.value?.applyPresetFilter?.(presetFilter)" />
 
             <div v-for="(val, name) in filtersRef" :key="name">
               <div class="flex justify-between mb-1">
                 <label class="text-[10px] text-gray-500">{{ name }}</label>
               </div>
-              <USlider v-model="(filtersRef as any)[name]" :min="-100" :max="100" size="xs"
+              <USlider
+v-model="(filtersRef as any)[name]" :min="-100" :max="100" size="xs"
                 @update:model-value="handleFilterUpdate(name)" />
             </div>
           </div>
@@ -476,16 +503,18 @@ const HandleUpdateGradientAngle = (angle?: number) => {
                 <span class="text-xs">Size:
                   {{ editor?.globalSettings.value.width }} x {{ editor?.globalSettings.value.height }}</span>
               </div>
-              <div class="grid grid-cols-2 gap-2 mb-2" v-if="editor">
+              <div v-if="editor" class="grid grid-cols-2 gap-2 mb-2">
                 <div>
                   <label class="text-[10px] text-gray-500 block mb-1">W</label>
-                  <UInputNumber v-model="editor.globalSettings.value.width"
-                    @update:modelValue="(n) => { HandleSetCanvasSize(n || 0, editor?.globalSettings.value.height) }" />
+                  <UInputNumber
+v-model="editor.globalSettings.value.width"
+                    @update:model-value="(n) => { HandleSetCanvasSize(n || 0, editor?.globalSettings.value.height) }" />
                 </div>
                 <div>
                   <label class="text-[10px] text-gray-500 block mb-1">H</label>
-                  <UInputNumber v-model="editor.globalSettings.value.height"
-                    @update:modelValue="(n) => { HandleSetCanvasSize(editor?.globalSettings.value.width, n || 0) }" />
+                  <UInputNumber
+v-model="editor.globalSettings.value.height"
+                    @update:model-value="(n) => { HandleSetCanvasSize(editor?.globalSettings.value.width, n || 0) }" />
                 </div>
               </div>
               <div class="grid grid-cols-3 gap-1">
@@ -500,18 +529,20 @@ const HandleUpdateGradientAngle = (angle?: number) => {
               </div>
             </div>
 
-            <hr class="border-gray-100 dark:border-gray-800" />
+            <hr class="border-gray-100 dark:border-gray-800" >
             <!-- RULERS -->
             <div class="space-y-2">
               <div class="flex justify-between items-center">
                 <span class="text-xs">Rulers</span>
-                <USwitch v-model="showRulers" size="xs" @update:model-value="HandleToggleRulers"
-                  data-testid="toggle-rulers" />
+                <USwitch
+v-model="showRulers" size="xs" data-testid="toggle-rulers"
+                  @update:model-value="HandleToggleRulers" />
               </div>
               <div class="flex justify-between items-center">
                 <span class="text-xs">Snap to Guides</span>
-                <USwitch v-model="snapToGuides" size="xs" @update:model-value="HandleToggleSnapToGuides"
-                  data-testid="toggle-snap-to-guides" />
+                <USwitch
+v-model="snapToGuides" size="xs" data-testid="toggle-snap-to-guides"
+                  @update:model-value="HandleToggleSnapToGuides" />
               </div>
               <div class="flex gap-2">
                 <UButton size="xs" variant="outline" class="flex-1" @click="handleAddGuideline('horizontal')">+ H Guide
@@ -521,27 +552,31 @@ const HandleUpdateGradientAngle = (angle?: number) => {
               </div>
             </div>
 
-            <hr class="border-gray-100 dark:border-gray-800" />
+            <hr class="border-gray-100 dark:border-gray-800" >
 
             <div>
               <label class="text-[10px] text-gray-500 block mb-1">Color</label>
               <div class="flex gap-2 items-center">
-                <USelect v-model="background.type" :items="['none', 'solid', 'gradient']" size="xs" class="flex-1"
-                  @change="handleBackgroundUpdate" data-testid="select-bg-type" />
+                <USelect
+v-model="background.type" :items="['none', 'solid', 'gradient']" size="xs" class="flex-1"
+                  data-testid="select-bg-type" @change="handleBackgroundUpdate" />
 
               </div>
               <div v-if="background.type === 'solid'" class="my-4  p-4">
-                <UColorPicker v-model="background.solidColor" v-if="background.type === 'solid'"
-                  @update:modelValue="handleBackgroundUpdate" />
+                <UColorPicker
+v-if="background.type === 'solid'" v-model="background.solidColor"
+                  @update:model-value="handleBackgroundUpdate" />
               </div>
               <div v-if="background.type === 'gradient'" class="my-4  p-4">
                 <section class="flex mb-4 gap-1">
-                  <USlider v-model="background.gradientAngle" :min="0" :max="360" class=""
-                    @update:modelValue="HandleUpdateGradientAngle" />
+                  <USlider
+v-model="background.gradientAngle" :min="0" :max="360" class=""
+                    @update:model-value="HandleUpdateGradientAngle" />
                   <span>{{ background.gradientAngle }}</span>
                 </section>
-                <UColorPicker v-for="(color, index) in background.gradientColors" :key="color" :default-value="color"
-                  class="mb-4" v-if="background.type === 'gradient'"
+                <UColorPicker
+v-for="(color, index) in background.gradientColors" v-if="background.type === 'gradient'" :key="color"
+                  :default-value="color" class="mb-4"
                   @update:model-value="(c) => HandleUpdateGradientColorByPosition(index, c)" />
               </div>
             </div>

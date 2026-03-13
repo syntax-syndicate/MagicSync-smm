@@ -158,7 +158,8 @@ const activeImageType = ref<'base' | 'overlay'>('base');
               <UButton size="sm" variant="outline" @click="addTextLayer()">Add Layer</UButton>
             </div>
             <div class="grid gap-2">
-              <div v-for="layer in textLayers" :key="layer.id"
+              <div
+v-for="layer in textLayers" :key="layer.id"
                 class="flex items-center justify-between p-2 border rounded-md"
                 :class="{ 'border-primary': activeTextLayerId === layer.id }">
                 <div class="flex-1 cursor-pointer" @click="updateActiveTextLayerId(layer.id)">
@@ -190,7 +191,8 @@ const activeImageType = ref<'base' | 'overlay'>('base');
               <p>Social media aspect ratios and predefined positions</p>
             </header>
             <section class="grid grid-cols-2 gap-2 my-4">
-              <UButton v-for="(ratio, key) in aspectRatios" :key="key" variant="outline" color="neutral"
+              <UButton
+v-for="(ratio, key) in aspectRatios" :key="key" variant="outline" color="neutral"
                 :class="{ 'border-primary': aspectRatios[aspectRatio]?.label === ratio.label }"
                 @click="updateAspectRatio(key)">
                 <div class="flex flex-col items-start">
@@ -205,27 +207,32 @@ const activeImageType = ref<'base' | 'overlay'>('base');
                 <div class="flex gap-4">
                   <div class="flex-1">
                     <label class="text-sm font-medium">Width (px)</label>
-                    <UInput type="number" v-model="customSize.width" min="1" :step="10"
+                    <UInput
+v-model="customSize.width" type="number" min="1" :step="10"
                       @update:model-value="(val: string | number) => updateCustomSize({ ...customSize, width: Number(val) })" />
                   </div>
                   <div class="flex-1">
                     <label class="text-sm font-medium">Height (px)</label>
-                    <UInput type="number" v-model="customSize.height" min="1" :step="10"
+                    <UInput
+v-model="customSize.height" type="number" min="1" :step="10"
                       @update:model-value="(val: string | number) => updateCustomSize({ ...customSize, height: Number(val) })" />
                   </div>
                 </div>
                 <div class="flex gap-2">
-                  <UButton variant="outline" @click="() => {
+                  <UButton
+variant="outline" @click="() => {
                     updateCustomSize({ width: 1080, height: 1080 });
                   }">
                     1:1
                   </UButton>
-                  <UButton variant="outline" @click="() => {
+                  <UButton
+variant="outline" @click="() => {
                     updateCustomSize({ width: 1920, height: 1080 });
                   }">
                     16:9
                   </UButton>
-                  <UButton variant="outline" @click="() => {
+                  <UButton
+variant="outline" @click="() => {
                     if (optimizedBaseImage) {
                       updateCustomSize({ width: optimizedBaseImage.naturalWidth, height: optimizedBaseImage.naturalHeight });
                     }
@@ -237,7 +244,8 @@ const activeImageType = ref<'base' | 'overlay'>('base');
             </section>
             <section class="my-4">
               <header>Current aspect ratio:</header>
-              <div variant="ghost" title="Change aspect ratio"
+              <div
+variant="ghost" title="Change aspect ratio"
                 class="text-gray-400 p-2 rounded-full  flex items-center space-x-1 text-sm">
                 <Icon name="material-symbols-light:image-aspect-ratio-outline" class="h-4 w-4" />
                 <span>
@@ -267,12 +275,14 @@ const activeImageType = ref<'base' | 'overlay'>('base');
                 <div class="space-y-4">
                   <!-- Font Category Selection -->
                   <div class="flex gap-2">
-                    <UButton variant="outline"
+                    <UButton
+variant="outline"
                       :class="{ 'bg-primary text-primary-foreground': selectedFontCategoryModel === 'system' }"
                       @click="selectedFontCategoryModel = 'system'">
                       System
                     </UButton>
-                    <UButton variant="outline"
+                    <UButton
+variant="outline"
                       :class="{ 'bg-primary text-primary-foreground': selectedFontCategoryModel === 'google' }"
                       @click="selectedFontCategoryModel = 'google'">
                       Google
@@ -280,7 +290,8 @@ const activeImageType = ref<'base' | 'overlay'>('base');
                   </div>
 
                   <!-- Font Selection -->
-                  <USelectMenu v-if="textControlsModel?.fontFamily" v-model="textControlsModel.fontFamily"
+                  <USelectMenu
+v-if="textControlsModel?.fontFamily" v-model="textControlsModel.fontFamily"
                     value-key="value" :items="selectedFontCategoryModel === 'system' ? [
                       { type: 'label', label: 'Sans-serif', style: { fontFamily: 'serif' } },
                       ...fontFamilies.system.filter(f => f.family.includes('sans-serif')).map(font => ({
@@ -314,7 +325,8 @@ const activeImageType = ref<'base' | 'overlay'>('base');
                     }))" class="min-w-80 w-full" />
 
                   <!-- Font Preview -->
-                  <div class="p-4 border rounded-lg text-center"
+                  <div
+class="p-4 border rounded-lg text-center"
                     :style="{ fontFamily: textControlsModel?.fontFamily, }">
                     The quick brown fox jumps over the lazy dog
                   </div>
@@ -330,11 +342,13 @@ const activeImageType = ref<'base' | 'overlay'>('base');
               <div v-if="textControlsModel" class="grid  items-center gap-4">
                 <label class="text-sm font-medium">Text Style</label>
                 <div class="flex gap-2">
-                  <UButton size="sm" :variant="textControlsModel!.fontWeight === 'bold' ? 'solid' : 'outline'"
+                  <UButton
+size="sm" :variant="textControlsModel!.fontWeight === 'bold' ? 'solid' : 'outline'"
                     @click="textControlsModel!.fontWeight = textControlsModel!.fontWeight === 'bold' ? 'normal' : 'bold'">
                     <Icon name="material-symbols:format-bold" />
                   </UButton>
-                  <UButton size="sm" :variant="textControlsModel!.fontStyle === 'italic' ? 'solid' : 'outline'"
+                  <UButton
+size="sm" :variant="textControlsModel!.fontStyle === 'italic' ? 'solid' : 'outline'"
                     @click="textControlsModel!.fontStyle = textControlsModel!.fontStyle === 'italic' ? 'normal' : 'italic'">
                     <Icon name="material-symbols:format-italic" />
                   </UButton>
@@ -393,11 +407,13 @@ const activeImageType = ref<'base' | 'overlay'>('base');
                   <label class="capitalize text-xs text-muted-foreground">{{ category }}
                   </label>
                   <div class="grid grid-cols-2 gap-2">
-                    <UButton v-for="style in styles" :key="style.name" variant="outline"
+                    <UButton
+v-for="style in styles" :key="style.name" variant="outline"
                       class="h-auto p-2 justify-start relative group" @click="applyTextStyle(style)">
                       <div class="text-left w-full">
                         <div class="text-sm font-medium mb-2">{{ style.name }}</div>
-                        <div class="text-xs truncate mt-1" :style="{
+                        <div
+class="text-xs truncate mt-1" :style="{
                           fontFamily: style.style.fontFamily,
                           fontSize: '16px',
                           fontWeight: style.style.fontWeight,
@@ -425,9 +441,11 @@ const activeImageType = ref<'base' | 'overlay'>('base');
             </section>
             <section class="grid gap-2 mt-4">
               <label class="text-xs text-muted-foreground">Save current style:</label>
-              <UInput :model-value="newStyleNameModel" placeholder="Style name..." class="flex-1"
+              <UInput
+:model-value="newStyleNameModel" placeholder="Style name..." class="flex-1"
                 @update:model-value="(val: string | number) => newStyleNameModel = String(val)" />
-              <UButton variant="outline"
+              <UButton
+variant="outline"
                 @click="saveCurrentAsCustomStyle(String(newStyleNameModel) || `Custom ${String(customStyles.length + 1)}`)">
                 Save Style
               </UButton>
@@ -476,9 +494,11 @@ const activeImageType = ref<'base' | 'overlay'>('base');
               </div>
             </section>
             <div class="grid gap-1 grid-cols-5 my-5">
-              <UButton v-for="position in positions" :key="position.top + position.left" class="size-14 p-1 "
+              <UButton
+v-for="position in positions" :key="position.top + position.left" class="size-14 p-1 "
                 @click="handlePredefinedPosition(position)">
-                <span v-if="activePosition.top === position.top && activePosition.left === position.left"
+                <span
+v-if="activePosition.top === position.top && activePosition.left === position.left"
                   class="size-12 bg-black/40" />
               </UButton>
             </div>
@@ -508,7 +528,8 @@ const activeImageType = ref<'base' | 'overlay'>('base');
             </div>
             <section class="grid my-4 gap-2">
               <label class="text-sm font-medium">Background Type</label>
-              <USelectMenu v-model="backgroundControlsModel.type" value-key="value" :items="[
+              <USelectMenu
+v-model="backgroundControlsModel.type" value-key="value" :items="[
                 { label: 'None', value: 'none' },
                 { label: 'Gradient', value: 'gradient' },
                 { label: 'Image', value: 'image' },
@@ -524,7 +545,8 @@ const activeImageType = ref<'base' | 'overlay'>('base');
               <div>
                 <label class="text-sm font-medium">Gradient Colors</label>
                 <div class="grid gap-2">
-                  <UColorPicker v-for="(color, index) in backgroundControlsModel.gradient.colors" :key="index"
+                  <UColorPicker
+v-for="(color, index) in backgroundControlsModel.gradient.colors" :key="index"
                     v-model="backgroundControlsModel.gradient.colors[index]" class="" />
                 </div>
               </div>
@@ -534,7 +556,7 @@ const activeImageType = ref<'base' | 'overlay'>('base');
             <div v-if="backgroundControlsModel.type.includes('image')" class="space-y-4">
               <div>
                 <label class="text-sm font-medium">Upload Image</label>
-                <UFileUpload type="file" accept="image/*" class="w-full" @update:modelValue="onBackgroundImageUpload" />
+                <UFileUpload type="file" accept="image/*" class="w-full" @update:model-value="onBackgroundImageUpload" />
               </div>
             </div>
 
@@ -542,7 +564,8 @@ const activeImageType = ref<'base' | 'overlay'>('base');
             <div class="space-y-2">
               <label class="text-sm font-medium">Predefined Backgrounds</label>
               <div class="grid grid-cols-3 gap-2">
-                <UButton v-for="bg in backgroundControlsModel.predefinedBackgrounds" :key="bg.name"
+                <UButton
+v-for="bg in backgroundControlsModel.predefinedBackgrounds" :key="bg.name"
                   class="h-20 rounded-lg overflow-hidden hover:ring-2 ring-primary" :style="{
 
                     backgroundImage: bg.image ? `url(${bg.image})` : '',
@@ -581,12 +604,14 @@ const activeImageType = ref<'base' | 'overlay'>('base');
 
             <!-- Image Type Selection -->
             <div class="flex gap-2 my-4">
-              <UButton variant="outline" class="flex-1"
+              <UButton
+variant="outline" class="flex-1"
                 :class="{ 'bg-primary text-primary-foreground': activeImageType === 'base' }"
                 @click="activeImageType = 'base'">
                 Base Image
               </UButton>
-              <UButton variant="outline" class="flex-1"
+              <UButton
+variant="outline" class="flex-1"
                 :class="{ 'bg-primary text-primary-foreground': activeImageType === 'overlay' }"
                 @click="activeImageType = 'overlay'">
                 Overlay Image
@@ -635,7 +660,8 @@ const activeImageType = ref<'base' | 'overlay'>('base');
               <!-- Position -->
               <div class="space-y-2 grid gap-4">
                 <label class="text-sm font-medium">Object Position</label>
-                <USelectMenu v-model="baseImageStyles.position.objectPosition" :items="[
+                <USelectMenu
+v-model="baseImageStyles.position.objectPosition" :items="[
                   { label: 'Center', value: 'center' },
                   { label: 'Top', value: 'top' },
                   { label: 'Bottom', value: 'bottom' },
@@ -695,7 +721,8 @@ const activeImageType = ref<'base' | 'overlay'>('base');
               <!-- Position -->
               <div class="space-y-2 grid gap-4">
                 <label class="text-sm font-medium">Object Position</label>
-                <USelectMenu v-model="overlayImageStyles.position.objectPosition" :items="[
+                <USelectMenu
+v-model="overlayImageStyles.position.objectPosition" :items="[
                   { label: 'Center', value: 'center' },
                   { label: 'Top', value: 'top' },
                   { label: 'Bottom', value: 'bottom' },
@@ -724,9 +751,11 @@ const activeImageType = ref<'base' | 'overlay'>('base');
               <div class="space-y-2 grid gap-4">
                 <label class="text-sm font-medium">Filter Presets</label>
                 <div class="grid grid-cols-4 gap-2">
-                  <UButton v-for="filterPreset in presets" :key="filterPreset.name" :title="filterPreset.name"
+                  <UButton
+v-for="filterPreset in presets" :key="filterPreset.name" :title="filterPreset.name"
                     variant="ghost" class="p-2 h-auto" @click="() => applyFilter(filterPreset.name)">
-                    <img v-if="optimizedOverlayImage" :src="optimizedOverlayImage.src"
+                    <img
+v-if="optimizedOverlayImage" :src="optimizedOverlayImage.src"
                       :style="{ filter: filterPreset.style }" class="w-full h-8 object-contain rounded">
                   </UButton>
                 </div>
@@ -753,7 +782,8 @@ const activeImageType = ref<'base' | 'overlay'>('base');
               </UButton>
             </div>
             <div class="flex items-center gap-2">
-              <UButton icon="lucide:refresh-cw" color="error" variant="outline" title="Reset" class="text-sm w-full"
+              <UButton
+icon="lucide:refresh-cw" color="error" variant="outline" title="Reset" class="text-sm w-full"
                 @click="reset">
                 <span>Reset</span>
               </UButton>

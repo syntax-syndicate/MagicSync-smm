@@ -761,7 +761,8 @@ watch(backgroundControls, (newConfig) => {
   <div ref="editor" class="flex gap-4 justify-items-center justify-center  max-h-[80vh]">
     <!-- Preview Area -->
     <div id="editor-container" ref="editorContainer" class="relative grid place-items-center overflow-hidden">
-      <section class=" relative transition-transform duration-200 overflow-hidden"
+      <section
+class=" relative transition-transform duration-200 overflow-hidden"
         :class="{ 'aspect-auto': aspectRatio === 'custom' || aspectRatio === 'image' }" :style="{
           width: `${scaledDimensions.width}px`,
           height: `${scaledDimensions.height}px`,
@@ -771,23 +772,27 @@ watch(backgroundControls, (newConfig) => {
 
 
         <!-- Base image -->
-        <img v-if="optimizedBaseImage" :src="optimizedBaseImage.src" :style="baseImageStyle"
+        <img
+v-if="optimizedBaseImage" :src="optimizedBaseImage.src" :style="baseImageStyle"
           class="absolute inset-0 w-full h-full object-contain">
 
         <!-- Text Layers -->
-        <TextBehindImageTextLayer v-for="layer in textLayers" :key="layer.id" :layer="layer"
+        <TextBehindImageTextLayer
+v-for="layer in textLayers" :key="layer.id" :layer="layer"
           :editor-container="editorContainer" :is-active="activeTextLayerId === layer.id"
           :selected-font-class="selectedFont" @update:active-text-layer-id="activeTextLayerId = $event" />
 
         <!-- Overlay image -->
-        <img v-if="optimizedOverlayImage" :src="optimizedOverlayImage.src" :style="overlayImageStyle"
+        <img
+v-if="optimizedOverlayImage" :src="optimizedOverlayImage.src" :style="overlayImageStyle"
           class="absolute inset-0 w-full h-full object-contain filter">
       </section>
 
     </div>
   </div>
   <!-- Editor Controls -->
-  <TextBehindImageEditorControls :is-overflowing="isOverflowing" :text-layers="textLayers"
+  <TextBehindImageEditorControls
+:is-overflowing="isOverflowing" :text-layers="textLayers"
     :active-text-layer-id="activeTextLayerId" :aspect-ratios="aspectRatios" :aspect-ratio="aspectRatio"
     :custom-size="customSize" :optimized-base-image="optimizedBaseImage"
     :actual-dimensions="actualDimensions || { width: 0, height: 0 }" :text-controls="textControls" :is-mobile="isMobile"

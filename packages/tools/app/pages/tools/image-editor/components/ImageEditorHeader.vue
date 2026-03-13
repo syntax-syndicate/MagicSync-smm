@@ -37,7 +37,7 @@ const handleHomeClick = () => {
       <UButton variant="ghost" color="neutral" icon="lucide:arrow-left" @click="handleHomeClick" />
       <span class="font-semibold text-sm hidden sm:block">Image Editor</span>
 
-      <div class="h-4 w-px bg-gray-300 dark:bg-gray-700 mx-2"></div>
+      <div class="h-4 w-px bg-gray-300 dark:bg-gray-700 mx-2"/>
 
       <!-- History Controls -->
       <UTooltip :text="t('menu.vertical.undo', 'Undo')">
@@ -57,9 +57,11 @@ const handleHomeClick = () => {
 
     <!-- Right: Actions -->
     <div class="flex items-center gap-2">
-      <UButton color="neutral" variant="outline" size="sm" icon="lucide:download" :label="t('menu.main.save', 'Save')"
+      <UButton
+color="neutral" variant="outline" size="sm" icon="lucide:download" :label="t('menu.main.save', 'Save')"
         @click="downloadCanvasImage" />
-      <UButton color="primary" variant="solid" size="sm" icon="lucide:share" :label="t('menu.main.export', 'Export')"
+      <UButton
+color="primary" variant="solid" size="sm" icon="lucide:share" :label="t('menu.main.export', 'Export')"
         @click="exportCurrentCanvas" />
     </div>
   </header>

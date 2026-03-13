@@ -1,5 +1,6 @@
-import { Canvas, Group, ActiveSelection, FabricObject } from 'fabric';
-import { BaseFabricPlugin, FabricEditor } from './FabricEditor';
+import type { Canvas, Group, ActiveSelection, FabricObject } from 'fabric';
+import type { FabricEditor } from './FabricEditor';
+import { BaseFabricPlugin } from './FabricEditor';
 import type { EditorContext } from './PluginContext';
 
 // Simple uuid generator for now

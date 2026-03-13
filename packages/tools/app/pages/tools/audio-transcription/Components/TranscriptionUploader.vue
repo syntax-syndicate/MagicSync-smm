@@ -142,13 +142,13 @@ function stopRecording() {
           </p>
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">or click to browse your computer</p>
           <div class="flex gap-2 justify-center">
-            <UBadge color="gray" variant="soft" class="font-mono text-[10px] font-bold uppercase tracking-widest">MP3
+            <UBadge color="neutral" variant="soft" class="font-mono text-[10px] font-bold uppercase tracking-widest">MP3
             </UBadge>
-            <UBadge color="gray" variant="soft" class="font-mono text-[10px] font-bold uppercase tracking-widest">WAV
+            <UBadge color="neutral" variant="soft" class="font-mono text-[10px] font-bold uppercase tracking-widest">WAV
             </UBadge>
-            <UBadge color="gray" variant="soft" class="font-mono text-[10px] font-bold uppercase tracking-widest">M4A
+            <UBadge color="neutral" variant="soft" class="font-mono text-[10px] font-bold uppercase tracking-widest">M4A
             </UBadge>
-            <UBadge color="gray" variant="soft" class="font-mono text-[10px] font-bold uppercase tracking-widest">MP4
+            <UBadge color="neutral" variant="soft" class="font-mono text-[10px] font-bold uppercase tracking-widest">MP4
             </UBadge>
           </div>
         </div>

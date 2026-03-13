@@ -1,4 +1,4 @@
-import { Canvas } from 'fabric';
+import type { Canvas } from 'fabric';
 import { BaseFabricPlugin, FabricEditor } from '../FabricEditor';
 
 export class HistoryPlugin extends BaseFabricPlugin {

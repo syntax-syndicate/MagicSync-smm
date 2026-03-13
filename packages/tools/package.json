@@ -26,6 +26,9 @@
     "typescript": "catalog:",
     "vue": "catalog:",
     "modern-screenshot": "catalog:",
-    "evlog": "catalog:"
+    "evlog": "catalog:",
+    "mediabunny": "catalog:",
+    "wavesurfer.js": "catalog:",
+    "idb": "catalog:"
   }
 }

@@ -1,4 +1,5 @@
-import { Canvas, Rect, FabricObject } from 'fabric';
+import type { FabricObject } from 'fabric';
+import { Canvas, Rect } from 'fabric';
 import { BaseFabricPlugin, FabricEditor, type FabricObjectWithName } from '../FabricEditor';
 
 export class RulerPlugin extends BaseFabricPlugin {

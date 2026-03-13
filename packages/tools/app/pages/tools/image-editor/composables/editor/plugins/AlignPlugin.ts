@@ -1,4 +1,5 @@
-import { Canvas, FabricObject } from 'fabric';
+import type { FabricObject } from 'fabric';
+import { Canvas } from 'fabric';
 import { BaseFabricPlugin, FabricEditor, type FabricObjectWithName } from '../FabricEditor';
 
 export class AlignPlugin extends BaseFabricPlugin {

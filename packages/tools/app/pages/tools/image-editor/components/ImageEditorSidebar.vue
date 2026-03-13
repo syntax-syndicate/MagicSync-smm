@@ -200,9 +200,10 @@ const HandleAddBrushLayer = () => {
       class="w-16 flex flex-col items-center py-4 border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/50 gap-4">
       <template v-for="tab in tabs" :key="tab.id">
         <UTooltip :text="tab.label" placement="right">
-          <button class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200"
+          <button
+class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200"
             :class="activeTab === tab.id ? 'bg-primary text-primary-foreground shadow-sm' : 'text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-800'"
-            @click="selectTab(tab.id)" :data-testid="`tab-${tab.id}`">
+            :data-testid="`tab-${tab.id}`" @click="selectTab(tab.id)">
             <Icon :name="tab.icon" class="w-5 h-5" />
           </button>
         </UTooltip>
@@ -224,14 +225,16 @@ const HandleAddBrushLayer = () => {
             <UButton block icon="lucide:upload" @click="templateInput?.click()">
               Upload Template
             </UButton>
-            <input ref="templateInput" type="file" accept='application/json' class="hidden"
-              @change="(e) => onTemplateSelect((e.target as HTMLInputElement).files!)" />
+            <input
+ref="templateInput" type="file" accept='application/json' class="hidden"
+              @change="(e) => onTemplateSelect((e.target as HTMLInputElement).files!)" >
 
             <div class="text-xs text-center text-gray-500 mt-4">
               Uploaded templates will appear here
             </div>
           </section>
-          <div v-for="(tpl, idx) in templates" :key="idx"
+          <div
+v-for="(tpl, idx) in templates" :key="idx"
             class="border border-gray-200 dark:border-gray-800 rounded-lg p-2 hover:border-primary cursor-pointer transition-colors"
             @click="loadTemplate(tpl.json)">
             <div class="aspect-3/4 bg-gray-100 dark:bg-gray-800 rounded-md mb-2 flex items-center justify-center">
@@ -249,19 +252,19 @@ const HandleAddBrushLayer = () => {
             <div class="grid grid-cols-3 gap-3">
               <UButton
                 class="aspect-square border border-gray-200 dark:border-gray-800 rounded flex flex-col items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600"
-                @click="HandleAddShapeLayer('rect', { fill: '#333' })" data-testid="add-rect" variant="ghost">
+                data-testid="add-rect" variant="ghost" @click="HandleAddShapeLayer('rect', { fill: '#333' })">
                 <Icon name="lucide:square" class="w-6 h-6 mb-1" />
                 <span class="text-[10px]">Rect</span>
               </UButton>
               <UButton
                 class="aspect-square border border-gray-200 dark:border-gray-800 rounded flex flex-col items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600"
-                @click="HandleAddShapeLayer('circle', { fill: '#333' })" variant="ghost" data-testid="add-circle">
+                variant="ghost" data-testid="add-circle" @click="HandleAddShapeLayer('circle', { fill: '#333' })">
                 <Icon name="lucide:circle" class="w-6 h-6 mb-1" />
                 <span class="text-[10px]">Circle</span>
               </UButton>
               <UButton
                 class="aspect-square border border-gray-200 dark:border-gray-800 rounded flex flex-col items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600"
-                @click="HandleAddShapeLayer('triangle', { fill: '#333' })" data-testid="add-triangle" variant="ghost">
+                data-testid="add-triangle" variant="ghost" @click="HandleAddShapeLayer('triangle', { fill: '#333' })">
                 <Icon name="lucide:triangle" class="w-6 h-6 mb-1" />
                 <span class="text-[10px]">Triangle</span>
               </UButton>
@@ -278,15 +281,18 @@ const HandleAddBrushLayer = () => {
 
         <!-- TEXT TAB -->
         <div v-if="activeTab === 'text'" class="space-y-4">
-          <UButton block size="lg" color="neutral" variant="soft"
+          <UButton
+block size="lg" color="neutral" variant="soft"
             @click="HandleAddTextLayer({ text: 'Add a heading', fontSize: 32, fontWeight: 'bold' })">
             Add a heading
           </UButton>
-          <UButton block size="md" color="neutral" variant="soft"
+          <UButton
+block size="md" color="neutral" variant="soft"
             @click="HandleAddTextLayer({ text: 'Add a subheading', fontSize: 24, fontWeight: 'semi-bold' })">
             Add a subheading
           </UButton>
-          <UButton block size="sm" color="neutral" variant="soft"
+          <UButton
+block size="sm" color="neutral" variant="soft"
             @click="HandleAddTextLayer({ text: 'Add a little bit of body text', fontSize: 16 })">
             Add body text
           </UButton>
@@ -297,8 +303,9 @@ const HandleAddBrushLayer = () => {
           <UButton block icon="lucide:upload" @click="fileInput?.click()">
             Upload Image
           </UButton>
-          <input ref="fileInput" type="file" accept="image/*" class="hidden"
-            @change="(e) => onFileSelect((e.target as HTMLInputElement).files!)" />
+          <input
+ref="fileInput" type="file" accept="image/*" class="hidden"
+            @change="(e) => onFileSelect((e.target as HTMLInputElement).files!)" >
 
           <div class="text-xs text-center text-gray-500 mt-4">
             Uploaded images will appear here (Not persisted in this demo)
@@ -316,11 +323,13 @@ const HandleAddBrushLayer = () => {
             No layers. Add something!
           </div>
 
-          <div v-for="(layer, index) in reversedLayers" :key="`layer-${index}`"
+          <div
+v-for="(layer, index) in reversedLayers" :key="`layer-${index}`"
             class="group flex items-center gap-2 p-2 rounded-md cursor-pointer border border-transparent hover:border-gray-200 dark:hover:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
             :class="{ 'bg-primary/5 border-primary/20': layer === activeLayer }" @click="handleLayerClick(layer)">
 
-            <UButton class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200" variant="ghost"
+            <UButton
+class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200" variant="ghost"
               @click.stop="handleToggleVisibility(layer)">
               <Icon :name="layer.visible !== false ? 'lucide:eye' : 'lucide:eye-off'" class="w-4 h-4" />
             </UButton>
@@ -335,16 +344,19 @@ const HandleAddBrushLayer = () => {
             </div>
 
             <div class="flex gap-1 opacity-50 group-hover:opacity-100 transition-opacity">
-              <UButton class="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded" @click.stop="moveLayerUp(layer)"
-                variant="ghost">
+              <UButton
+class="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded" variant="ghost"
+                @click.stop="moveLayerUp(layer)">
                 <Icon name="lucide:arrow-up" class="w-3 h-3 text-gray-500" />
               </UButton>
-              <UButton class="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded" @click.stop="moveLayerDown(layer)"
-                variant="ghost">
+              <UButton
+class="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded" variant="ghost"
+                @click.stop="moveLayerDown(layer)">
                 <Icon name="lucide:arrow-down" class="w-3 h-3 text-gray-500" />
               </UButton>
-              <UButton class="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 rounded text-red-500"
-                @click.stop="handleDeleteLayer(layer)" variant="ghost">
+              <UButton
+class="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 rounded text-red-500"
+                variant="ghost" @click.stop="handleDeleteLayer(layer)">
                 <Icon name="lucide:trash-2" class="w-3 h-3" />
               </UButton>
             </div>

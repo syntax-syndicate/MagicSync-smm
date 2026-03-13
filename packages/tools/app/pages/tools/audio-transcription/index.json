@@ -1,8 +1,68 @@
 {
   "en": {
-    "title": "Free Audio Transcription - Convert Speech to Text",
-    "description": "Transcribe audio and video files to text with timestamps using AI. Free online tool powered by Whisper.",
-    "audio_transcription": "Audio Transcription",
+    "title": "EchoTranscribe",
+    "description": "Local, private, in-browser transcription powered by WebGPU and Transformers.js",
+    "audio-transcription": {
+      "title": "EchoTranscribe",
+      "description": "Local, private, in-browser transcription powered by WebGPU and Transformers.js",
+      "dropzone": {
+        "label": "Click or drag file to this area to upload",
+        "description": "Support for audio and video files."
+      },
+      "model": "Model",
+      "language": "Language",
+      "stop": "Stop",
+      "loadingModels": "Loading models...",
+      "loadingModel": "Loading model... {progress}%",
+      "recentProjects": {
+        "title": "Recent Projects",
+        "subtitle": "Manage your locally stored transcriptions",
+        "fileName": "File Name",
+        "length": "Length",
+        "status": "Status",
+        "engine": "Engine",
+        "lastModified": "Last Modified",
+        "actions": "Actions",
+        "empty": "No projects yet. Drop an audio file to get started."
+      },
+      "projectDetail": {
+        "draft": "Draft Auto-saved",
+        "transcript": "Transcript",
+        "audio": "Audio",
+        "summary": "Content Summary",
+        "summaryPlaceholder": "Summary will be generated after transcription.",
+        "engine": "Transcription Engine",
+        "speaker": "Speaker",
+        "noTranscript": "No transcript available.",
+        "transcribing": "Transcribing remaining audio...",
+        "starting": "Starting transcription...",
+        "export": "Export",
+        "localSave": "Local Save",
+        "file": "File",
+        "progress": "Progress"
+      },
+      "status": {
+        "pending": "Pending",
+        "processing": "Processing",
+        "completed": "Completed",
+        "error": "Error"
+      },
+      "notifications": {
+        "transcriptionComplete": "Transcription Complete",
+        "transcriptionCompleteBody": "Transcription for \"{filename}\" has finished.",
+        "transcriptionError": "Transcription Error",
+        "summaryComplete": "Summary Complete",
+        "projectDeleted": "Project deleted successfully",
+        "projectSaved": "Project saved successfully"
+      },
+      "languages": {
+        "english": "English",
+        "spanish": "Spanish",
+        "french": "French",
+        "german": "German",
+        "auto": "Auto Detect"
+      }
+    },
     "drag_and_drop_audio": "Drag and drop audio files here",
     "or_select_files": "or select files",
     "supported_formats": "Supported formats: MP3, WAV, OGG, WebM, M4A, FLAC, MP4",
@@ -45,9 +105,68 @@
     "click_to_transcribe": "Click on the audio to start transcription"
   },
   "es": {
-    "title": "Transcripción de Audio Gratis - Convierte Voz a Texto",
-    "description": "Transcribe archivos de audio y video a texto con marcas de tiempo usando IA. Herramienta gratis online impulsada por Whisper.",
-    "audio_transcription": "Transcripción de Audio",
+    "title": "EchoTranscribe",
+    "description": "Transcripción local, privada en el navegador impulsada por WebGPU y Transformers.js",
+    "audio-transcription": {
+      "title": "EchoTranscribe",
+      "description": "Transcripción local, privada en el navegador impulsada por WebGPU y Transformers.js",
+      "dropzone": {
+        "label": "Haz clic o arrastra un archivo a esta área para subir",
+        "description": "Soporte para archivos de audio y video."
+      },
+      "model": "Modelo",
+      "language": "Idioma",
+      "loadingModels": "Cargando modelos...",
+      "loadingModel": "Cargando modelo... {progress}%",
+      "recentProjects": {
+        "title": "Proyectos Recientes",
+        "subtitle": "Gestiona tus transcripciones almacenadas localmente",
+        "fileName": "Nombre del Archivo",
+        "length": "Duración",
+        "status": "Estado",
+        "engine": "Motor",
+        "lastModified": "Última Modificación",
+        "actions": "Acciones",
+        "empty": "No hay proyectos aún. Arrastra un archivo de audio para comenzar."
+      },
+      "projectDetail": {
+        "draft": "Borrador Auto-guardado",
+        "transcript": "Transcripción",
+        "audio": "Audio",
+        "summary": "Resumen del Contenido",
+        "summaryPlaceholder": "El resumen se generará después de la transcripción.",
+        "engine": "Motor de Transcripción",
+        "speaker": "Hablante",
+        "noTranscript": "No hay transcripción disponible.",
+        "transcribing": "Transcribiendo audio restante...",
+        "starting": "Iniciando transcripción...",
+        "export": "Exportar",
+        "localSave": "Guardar Local",
+        "file": "Archivo",
+        "progress": "Progreso"
+      },
+      "status": {
+        "pending": "Pendiente",
+        "processing": "Procesando",
+        "completed": "Completado",
+        "error": "Error"
+      },
+      "notifications": {
+        "transcriptionComplete": "Transcripción Completa",
+        "transcriptionCompleteBody": "La transcripción de \"{filename}\" ha terminado.",
+        "transcriptionError": "Error de Transcripción",
+        "summaryComplete": "Resumen Completo",
+        "projectDeleted": "Proyecto eliminado exitosamente",
+        "projectSaved": "Proyecto guardado exitosamente"
+      },
+      "languages": {
+        "english": "Inglés",
+        "spanish": "Español",
+        "french": "Francés",
+        "german": "Alemán",
+        "auto": "Detección Automática"
+      }
+    },
     "drag_and_drop_audio": "Arrastra y suelta archivos de audio aquí",
     "or_select_files": "o selecciona archivos",
     "supported_formats": "Formatos soportados: MP3, WAV, OGG, WebM, M4A, FLAC, MP4",
@@ -90,9 +209,68 @@
     "click_to_transcribe": "Haz clic en el audio para iniciar la transcripción"
   },
   "de": {
-    "title": "Kostenlose Audio-Transkription - Sprache in Text umwandeln",
-    "description": "Transkribieren Sie Audio- und Videodateien mit Zeitstempeln in Text. Kostenloses Online-Tool powered by Whisper.",
-    "audio_transcription": "Audio-Transkription",
+    "title": "EchoTranscribe",
+    "description": "Lokale, private Browser-Transkription angetrieben von WebGPU und Transformers.js",
+    "audio-transcription": {
+      "title": "EchoTranscribe",
+      "description": "Lokale, private Browser-Transkription angetrieben von WebGPU und Transformers.js",
+      "dropzone": {
+        "label": "Klicken Sie hier oder ziehen Sie eine Datei hierher",
+        "description": "Unterstützung für Audio- und Videodateien."
+      },
+      "model": "Modell",
+      "language": "Sprache",
+      "loadingModels": "Modelle werden geladen...",
+      "loadingModel": "Modell wird geladen... {progress}%",
+      "recentProjects": {
+        "title": "Letzte Projekte",
+        "subtitle": "Verwalten Sie Ihre lokal gespeicherten Transkriptionen",
+        "fileName": "Dateiname",
+        "length": "Länge",
+        "status": "Status",
+        "engine": "Motor",
+        "lastModified": "Zuletzt geändert",
+        "actions": "Aktionen",
+        "empty": "Noch keine Projekte. Ziehen Sie eine Audiodatei hierher."
+      },
+      "projectDetail": {
+        "draft": "Entwurf Automatisch gespeichert",
+        "transcript": "Transkript",
+        "audio": "Audio",
+        "summary": "Zusammenfassung",
+        "summaryPlaceholder": "Die Zusammenfassung wird nach der Transkription generiert.",
+        "engine": "Transkriptionsmotor",
+        "speaker": "Sprecher",
+        "noTranscript": "Kein Transkript verfügbar.",
+        "transcribing": "Restliches Audio wird transkribiert...",
+        "starting": "Transkription wird gestartet...",
+        "export": "Exportieren",
+        "localSave": "Lokal Speichern",
+        "file": "Datei",
+        "progress": "Fortschritt"
+      },
+      "status": {
+        "pending": "Ausstehend",
+        "processing": "Verarbeitung",
+        "completed": "Abgeschlossen",
+        "error": "Fehler"
+      },
+      "notifications": {
+        "transcriptionComplete": "Transkription Abgeschlossen",
+        "transcriptionCompleteBody": "Die Transkription für \"{filename}\" ist abgeschlossen.",
+        "transcriptionError": "Transkriptionsfehler",
+        "summaryComplete": "Zusammenfassung Abgeschlossen",
+        "projectDeleted": "Projekt erfolgreich gelöscht",
+        "projectSaved": "Projekt erfolgreich gespeichert"
+      },
+      "languages": {
+        "english": "Englisch",
+        "spanish": "Spanisch",
+        "french": "Französisch",
+        "german": "Deutsch",
+        "auto": "Auto Erkennen"
+      }
+    },
     "drag_and_drop_audio": "Audiodateien hierher ziehen",
     "or_select_files": "oder Dateien auswählen",
     "supported_formats": "Unterstützte Formate: MP3, WAV, OGG, WebM, M4A, FLAC, MP4",
@@ -135,9 +313,68 @@
     "click_to_transcribe": "Klicken Sie auf das Audio, um die Transkription zu starten"
   },
   "fr": {
-    "title": "Transcription Audio Gratuite - Convertir la Parole en Texte",
-    "description": "Transcrivez des fichiers audio et vidéo en texte avec des horodatages. Outil gratuit en ligne propulsé par Whisper.",
-    "audio_transcription": "Transcription Audio",
+    "title": "EchoTranscribe",
+    "description": "Transcription locale et privée dans le navigateur propulsée par WebGPU et Transformers.js",
+    "audio-transcription": {
+      "title": "EchoTranscribe",
+      "description": "Transcription locale et privée dans le navigateur propulsée par WebGPU et Transformers.js",
+      "dropzone": {
+        "label": "Cliquez ou glissez un fichier ici pour télécharger",
+        "description": "Prise en charge des fichiers audio et vidéo."
+      },
+      "model": "Modèle",
+      "language": "Langue",
+      "loadingModels": "Chargement des modèles...",
+      "loadingModel": "Chargement du modèle... {progress}%",
+      "recentProjects": {
+        "title": "Projets Récents",
+        "subtitle": "Gérez vos transcriptions stockées localement",
+        "fileName": "Nom du Fichier",
+        "length": "Durée",
+        "status": "Statut",
+        "engine": "Moteur",
+        "lastModified": "Dernière Modification",
+        "actions": "Actions",
+        "empty": "Pas encore de projets. Glissez un fichier audio pour commencer."
+      },
+      "projectDetail": {
+        "draft": "Brouillon Auto-sauvegardé",
+        "transcript": "Transcription",
+        "audio": "Audio",
+        "summary": "Résumé du Contenu",
+        "summaryPlaceholder": "Le résumé sera généré après la transcription.",
+        "engine": "Moteur de Transcription",
+        "speaker": "Intervenant",
+        "noTranscript": "Aucune transcription disponible.",
+        "transcribing": "Transcription de l'audio restant...",
+        "starting": "Démarrage de la transcription...",
+        "export": "Exporter",
+        "localSave": "Sauvegarder Local",
+        "file": "Fichier",
+        "progress": "Progression"
+      },
+      "status": {
+        "pending": "En attente",
+        "processing": "Traitement",
+        "completed": "Terminé",
+        "error": "Erreur"
+      },
+      "notifications": {
+        "transcriptionComplete": "Transcription Terminée",
+        "transcriptionCompleteBody": "La transcription de \"{filename}\" est terminée.",
+        "transcriptionError": "Erreur de Transcription",
+        "summaryComplete": "Résumé Terminé",
+        "projectDeleted": "Projet supprimé avec succès",
+        "projectSaved": "Projet enregistré avec succès"
+      },
+      "languages": {
+        "english": "Anglais",
+        "spanish": "Espagnol",
+        "french": "Français",
+        "german": "Allemand",
+        "auto": "Détection Automatique"
+      }
+    },
     "drag_and_drop_audio": "Glissez-déposez des fichiers audio ici",
     "or_select_files": "ou sélectionnez des fichiers",
     "supported_formats": "Formats supportés: MP3, WAV, OGG, WebM, M4A, FLAC, MP4",

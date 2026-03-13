@@ -1,4 +1,5 @@
-import { Canvas, Group, ActiveSelection } from 'fabric';
+import type { Group, ActiveSelection } from 'fabric';
+import { Canvas } from 'fabric';
 import { BaseFabricPlugin, FabricEditor } from '../FabricEditor';
 
 export class GroupPlugin extends BaseFabricPlugin {

@@ -88,7 +88,8 @@ const onDrop = (e: DragEvent) => {
 </script>
 
 <template>
-  <div id="workspace"
+  <div
+id="workspace"
     class="flex-1 overflow-hidden bg-gray-100 dark:bg-gray-950/50 relative flex items-center justify-center"
     @dragover.prevent @drop="onDrop">
     <div class="canvas-box shadow-2xl">

@@ -149,7 +149,7 @@ const benefits = ref([
 <template>
   <section class=" w-full">
     <BaseHeader />
-    <BaseBenefits :items="benefits" v-if="viewState === 'REMOVE_BG'">
+    <BaseBenefits v-if="viewState === 'REMOVE_BG'" :items="benefits">
       <template #title>
         How it works
       </template>
@@ -174,7 +174,8 @@ const benefits = ref([
           <div class="w-full h-full  rounded-2xl shadow-2xl relative canvas-grid flex items-center justify-center">
 
             <!-- Loading Overlay -->
-            <div v-if="isLoading || isAnyImageInProgress"
+            <div
+v-if="isLoading || isAnyImageInProgress"
               class="absolute inset-0 bg-gray-800/80  flex items-center justify-center rounded-2xl z-10">
               <div class="flex flex-col items-center space-y-4 text-gray-300">
                 <Icon name="svg-spinners:270-ring-with-bg" class="w-10 h-10" />
@@ -183,16 +184,19 @@ const benefits = ref([
             </div>
 
             <!-- Screenshot Input Modal -->
-            <div v-if="!isLoading && (viewState === 'REMOVE_BG' || !files.length)"
+            <div
+v-if="!isLoading && (viewState === 'REMOVE_BG' || !files.length)"
               class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2   p-5 rounded-xl  w-96 text-sm flex flex-col items-center space-y-4">
-              <UFileUpload accept="image/*" label="Drop your image here" description="SVG, PNG, JPG or GIF (max. 2MB)"
-                :multiple="false" class="w-96 min-h-80" @update:modelValue="onFileDrop" />
+              <UFileUpload
+accept="image/*" label="Drop your image here" description="SVG, PNG, JPG or GIF (max. 2MB)"
+                :multiple="false" class="w-96 min-h-80" @update:model-value="onFileDrop" />
             </div>
 
             <!-- Preview Area -->
             <div v-if="viewState === 'PREVIEW'" class="grid place-items-center md:grid-cols-1 py-8 mt-8 ">
               <!-- Loading Indicator -->
-              <div v-if="isRunning || result.length === 0"
+              <div
+v-if="isRunning || result.length === 0"
                 class="flex flex-col items-center justify-center space-y-4 text-gray-300">
                 <Icon name="svg-spinners:270-ring-with-bg" class="w-10 h-10" />
                 <span>Processing image...</span>
@@ -201,7 +205,8 @@ const benefits = ref([
               <!-- Image Preview -->
               <section v-for="(file, index) in result" v-if="result.length > 0" :key="file.name" class="relative">
                 <NuxtImg :key="file.name" :src="getPreview(file)" alt="base image" class="rounded max-h-screen" />
-                <div v-if="isRunning"
+                <div
+v-if="isRunning"
                   class="absolute inset-0 bg-slate-950/80 text-blue-50 dark:bg-slate-950/60 flex items-center justify-center">
                   <Icon name="svg-spinners:270-ring-with-bg" />
                   <div class="ml-5">Removing background ...</div>
@@ -214,7 +219,8 @@ const benefits = ref([
 
             <!-- Fabric Editor Area -->
             <section v-if="viewState === 'EDITING'" class="min-h-full min-w-full  mt-10">
-              <TextBehindImageEditor v-if="editorProps.baseImage && editorProps.overlayImage && editorProps.text"
+              <TextBehindImageEditor
+v-if="editorProps.baseImage && editorProps.overlayImage && editorProps.text"
                 :base-image="editorProps.baseImage" :overlay-image="editorProps.overlayImage" :text="editorProps.text"
                 :text-over-image="editorProps.textOverImage" @reset="clear" />
             </section>

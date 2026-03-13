@@ -70,7 +70,8 @@ function formatDuration(seconds: number) {
               </div>
             </td>
             <td class="px-6 py-5 text-gray-500 dark:text-gray-400 font-mono text-sm">
-              {{ file.result?.chunks ? formatDuration(file.result.chunks[file.result.chunks.length - 1]?.end ?? 0) : '--:--'
+              {{ file.result?.chunks ? formatDuration(file.result.chunks[file.result.chunks.length - 1]?.end ?? 0) :
+                '--:--'
               }}
             </td>
             <td class="px-6 py-5">
@@ -83,10 +84,12 @@ function formatDuration(seconds: number) {
                 class="uppercase tracking-widest text-[10px] font-bold">Completed</UBadge>
               <UBadge v-else-if="file.status === 'error'" color="error" variant="soft"
                 class="uppercase tracking-widest text-[10px] font-bold">Error</UBadge>
-              <UBadge v-else color="neutral" variant="soft" class="uppercase tracking-widest text-[10px] font-bold">Pending
+              <UBadge v-else color="neutral" variant="soft" class="uppercase tracking-widest text-[10px] font-bold">
+                Pending
               </UBadge>
             </td>
-            <td class="px-6 py-5 text-gray-500 dark:text-gray-400 text-xs font-mono font-medium">Whisper {{ currentModel || 'v2-Large' }}</td>
+            <td class="px-6 py-5 text-gray-500 dark:text-gray-400 text-xs font-mono font-medium">Whisper {{ currentModel
+              || 'v2-Large' }}</td>
             <td class="px-6 py-5 text-gray-500 dark:text-gray-400 text-sm">Just now</td>
             <td class="px-6 py-5 text-right">
               <UButton v-if="file.status === 'transcribing'" color="error" variant="ghost" icon="i-lucide-square"
@@ -141,8 +144,9 @@ function formatDuration(seconds: number) {
 
         <h3 class="font-bold text-lg tracking-tight text-gray-900 dark:text-gray-100 mb-1 line-clamp-1 truncate"
           :title="file.name">{{ file.name }}</h3>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mb-6 font-mono">Whisper {{ currentModel || 'v2-Large' }} • {{ file.result?.chunks ?
-          formatDuration(file.result.chunks[file.result.chunks.length - 1]?.end ?? 0) : '--:--' }}</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mb-6 font-mono">Whisper {{ currentModel || 'v2-Large' }} • {{
+          file.result?.chunks ?
+            formatDuration(file.result.chunks[file.result.chunks.length - 1]?.end ?? 0) : '--:--' }}</p>
 
         <div class="mt-auto">
           <div v-if="file.status === 'transcribing'" class="flex flex-col gap-2">

@@ -221,11 +221,13 @@ async function copyCode() {
 
         <div v-if="selectedClipperType === 'ClipPath'">
           <h4 class="text-md font-semibold mt-4 mb-2">Path Points (X%, Y%)</h4>
-          <div v-for="(point, index) in currentClipperOptions.ClipPath.pathPoints" :key="index"
+          <div
+v-for="(point, index) in currentClipperOptions.ClipPath.pathPoints" :key="index"
             class="flex flex-col space-y-2 mb-4 p-2 border border-gray-200 dark:border-gray-700 rounded-md">
             <div class="flex items-center justify-between">
               <h5 class="text-sm font-medium">Point {{ index + 1 }}</h5>
-              <UButton icon="i-heroicons-minus-circle" color="error" variant="ghost"
+              <UButton
+icon="i-heroicons-minus-circle" color="error" variant="ghost"
                 @click="currentClipperOptions.ClipPath.pathPoints.splice(index, 1)" />
             </div>
             <UFormField label="X Coordinate (%)">
@@ -235,7 +237,8 @@ async function copyCode() {
               <USlider v-model="point.y" :min="0" :max="100" />
             </UFormField>
           </div>
-          <UButton icon="i-heroicons-plus-circle" color="success" variant="ghost" block
+          <UButton
+icon="i-heroicons-plus-circle" color="success" variant="ghost" block
             @click="currentClipperOptions.ClipPath.pathPoints.push({ x: 50, y: 50 })">
             Add Path Point
           </UButton>
@@ -248,7 +251,8 @@ async function copyCode() {
 
         <div v-if="selectedClipperType === 'ShapeBorderClipper'">
           <UFormField label="Shape Border">
-            <USelect v-model="currentClipperOptions.ShapeBorderClipper.shape"
+            <USelect
+v-model="currentClipperOptions.ShapeBorderClipper.shape"
               :items="['RoundedRectangleBorder', 'BeveledRectangleBorder']" />
           </UFormField>
           <UFormField label="Border Radius">
@@ -256,7 +260,7 @@ async function copyCode() {
           </UFormField>
         </div>
 
-        <UButton @click="copyCode" icon="i-heroicons-clipboard-document" block>
+        <UButton icon="i-heroicons-clipboard-document" block @click="copyCode">
           Copy Flutter Code
         </UButton>
       </div>
@@ -270,7 +274,7 @@ async function copyCode() {
             <div
               class="w-48 h-32 bg-linear-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-semibold text-sm relative overflow-hidden"
               :style="getClipClass">
-              <div class="absolute inset-0 bg-linear-to-br from-blue-400 to-purple-500"></div>
+              <div class="absolute inset-0 bg-linear-to-br from-blue-400 to-purple-500"/>
               <span class="relative z-10">Preview</span>
             </div>
           </div>

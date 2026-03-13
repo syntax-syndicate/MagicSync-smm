@@ -11,6 +11,7 @@
  * @todo [✔] Update the typescript.
  */
 import TranscriptionWorker from '@/assets/workers/transcriptionWorker?worker';
+import { Input, ALL_FORMATS, BlobSource, AudioSampleSink, Output, Mp4OutputFormat, BufferTarget } from 'mediabunny';
 export type TranscriptionStatus = 'idle' | 'loading' | 'loaded' | 'transcribing' | 'done' | 'error' | 'unloaded'
 
 export type WordTimestamp = {
@@ -40,20 +41,20 @@ export type TranscriptionFile = {
   error: string | null
 }
 
-export type ModelKey = 'tiny' | 'tinyEn' | 'base' | 'baseEn' | 'small' | 'smallEn' | 'medium' | 'mediumEn' | 'large' | 'largeV2' | 'largeV3' | 'timestamped' | 'distilMediumEn' | 'distilLargeV2'
+export type ModelKey =  'tiny' | 'tinyEn' | 'base' | 'baseEn' | 'small' | 'smallEn' | 'medium' | 'mediumEn' | 'large' | 'largeV2' | 'largeV3' | 'timestamped' | 'distilMediumEn' | 'distilLargeV2'
 
 export const AVAILABLE_MODELS: Record<ModelKey, { name: string; lang: string | null; size: string; isDistil?: boolean }> = {
-  tiny: { name: 'Xenova/whisper-tiny', lang: 'en', size: '39 MB' },
-  tinyEn: { name: 'Xenova/whisper-tiny.en', lang: 'en', size: '39 MB' },
-  base: { name: 'Xenova/whisper-base', lang: 'en', size: '74 MB' },
-  baseEn: { name: 'Xenova/whisper-base.en', lang: 'en', size: '74 MB' },
-  small: { name: 'Xenova/whisper-small', lang: 'en', size: '244 MB' },
-  smallEn: { name: 'Xenova/whisper-small.en', lang: 'en', size: '244 MB' },
-  medium: { name: 'Xenova/whisper-medium', lang: 'en', size: '769 MB' },
-  mediumEn: { name: 'Xenova/whisper-medium.en', lang: 'en', size: '769 MB' },
-  large: { name: 'Xenova/whisper-large', lang: 'en', size: '1550 MB' },
-  largeV2: { name: 'Xenova/whisper-large-v2', lang: 'en', size: '1550 MB' },
-  largeV3: { name: 'Xenova/whisper-large-v3', lang: 'en', size: '1550 MB' },
+  tiny: { name: 'onnx-community/whisper-tiny', lang: 'en', size: '39 MB' },
+  tinyEn: { name: 'onnx-community/whisper-tiny.en', lang: 'en', size: '39 MB' },
+  base: { name: 'onnx-community/whisper-base', lang: 'en', size: '74 MB' },
+  baseEn: { name: 'onnx-community/whisper-base.en', lang: 'en', size: '74 MB' },
+  small: { name: 'onnx-community/whisper-small', lang: 'en', size: '244 MB' },
+  smallEn: { name: 'onnx-community/whisper-small.en', lang: 'en', size: '244 MB' },
+  medium: { name: 'onnx-community/whisper-medium', lang: 'en', size: '769 MB' },
+  mediumEn: { name: 'onnx-community/whisper-medium.en', lang: 'en', size: '769 MB' },
+  large: { name: 'onnx-community/whisper-large', lang: 'en', size: '1550 MB' },
+  largeV2: { name: 'onnx-community/whisper-large-v2', lang: 'en', size: '1550 MB' },
+  largeV3: { name: 'onnx-community/whisper-large-v3', lang: 'en', size: '1550 MB' },
   distilMediumEn: { name: 'distil-whisper/distil-medium.en', lang: 'en', size: '402 MB', isDistil: true },
   distilLargeV2: { name: 'distil-whisper/distil-large-v2', lang: 'en', size: '767 MB', isDistil: true },
   timestamped: { name: 'onnx-community/whisper-base_timestamped', lang: null, size: '74 MB' },
@@ -111,7 +112,7 @@ export const LANGUAGES = [
 export const useTranscription = () => {
   const workerRef = ref<Worker | null>(null)
   const isModelLoaded = ref(false)
-  const currentModel = ref<ModelKey>('tiny')
+  const currentModel = ref<ModelKey>('timestamped')
   const currentLanguage = ref('en')
   const subtask = ref<'transcribe' | 'translate'>('transcribe')
   const isMultilingual = ref(false)
@@ -122,17 +123,23 @@ export const useTranscription = () => {
   const isProcessing = ref(false)
 
   const handleWorkerMessage = (event: MessageEvent) => {
-    const { type, status, progress, result, error, model } = event.data
-    console.log(`Event from worker:`, event);
-
+    const { type, status, progress, result, error } = event.data
+    console.log(`Event from worker:`, {
+      type,
+      status,
+      progress,
+      result,
+      error,
+    });
 
     switch (type) {
       case 'status':
         modelProgress.value = progress
-
-        if (status === 'loaded') {
+        if (status === 'loading') {
+          isModelLoaded.value = false
+        }
+        else if (status === 'loaded') {
           isModelLoaded.value = true
-          currentModel.value = model
         } else if (status === 'unloaded') {
           isModelLoaded.value = false
         } else if (status === 'error') {
@@ -284,9 +291,23 @@ export const useTranscription = () => {
       return
     }
 
+
     if (!isModelLoaded.value) {
       await loadModel(currentModel.value)
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Wait for model to actually load
+      await new Promise<void>((resolve) => {
+        const checkLoaded = setInterval(() => {
+          if (isModelLoaded.value) {
+            clearInterval(checkLoaded)
+            resolve()
+          }
+        }, 100)
+        // Timeout after 30 seconds
+        setTimeout(() => {
+          clearInterval(checkLoaded)
+          resolve()
+        }, 30000)
+      })
     }
 
     file.status = 'transcribing'
@@ -298,8 +319,6 @@ export const useTranscription = () => {
     try {
       const audioBuffer = await decodeAudioFile(file.file)
       const config = AVAILABLE_MODELS[currentModel.value]
-      console.log("Transcribing:" + file.file.name + " Language:" + language);
-
 
       workerRef.value?.postMessage({
         type: 'transcribe',
@@ -312,6 +331,8 @@ export const useTranscription = () => {
         }
       })
     } catch (err) {
+      console.error(err);
+
       file.status = 'error'
       file.error = err instanceof Error ? err.message : 'Failed to process audio'
       isProcessing.value = false
@@ -329,148 +350,47 @@ export const useTranscription = () => {
   }
 
   async function decodeAudioFile(file: File): Promise<Float32Array> {
-    const isVideoFile = file.type.startsWith('video/')
+    // For audio files, use mediabunny to extract audio
+    const input = new Input({
+      formats: ALL_FORMATS,
+      source: new BlobSource(file),
+    })
 
-    if (isVideoFile) {
-      return decodeVideoAudio(file)
+    const audioTrack = await input.getPrimaryAudioTrack()
+    if (!audioTrack) {
+      throw new Error('No audio track found in file')
     }
 
-    const arrayBuffer = await file.arrayBuffer()
-    const audioContext = new AudioContext()
-    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
+    // Save audio track to mp3 and user download automatically
 
-    const channelData = audioBuffer.getChannelData(0)
-    return channelData
+    const sink = new AudioSampleSink(audioTrack)
+    const samples: Float32Array[] = []
+
+    for await (const sample of sink.samples()) {
+      try {
+        const audioBuffer = sample.toAudioBuffer()
+        // Get the first channel data (assuming mono or taking first channel)
+        const channelData = audioBuffer.getChannelData(0)
+        samples.push(channelData)
+      } finally {
+        // Close the sample to release resources and prevent garbage collection warnings
+        sample.close()
+      }
+    }
+
+    // Combine all samples into a single Float32Array
+    const totalLength = samples.reduce((sum, s) => sum + s.length, 0)
+    const combined = new Float32Array(totalLength)
+    let offset = 0
+    for (const sample of samples) {
+      combined.set(sample, offset)
+      offset += sample.length
+    }
+
+
+    return combined
   }
 
-  async function decodeVideoAudio(file: File): Promise<Float32Array> {
-    const arrayBuffer = await file.arrayBuffer()
-
-    class MP4Demuxer {
-      private buffer: ArrayBuffer
-      private view: DataView
-      private position = 0
-      private audioTrack: { id: number; timescale: number; duration: number; chunks: { offset: number; size: number; duration: number }[] } | null = null
-
-      constructor(buffer: ArrayBuffer) {
-        this.buffer = buffer
-        this.view = new DataView(buffer)
-      }
-
-      async getAudioTrack() {
-        if (!this.parseBoxes()) {
-          return null
-        }
-        return this.audioTrack
-      }
-
-      private parseBoxes(): boolean {
-        while (this.position < this.buffer.byteLength) {
-          const size = this.view.getUint32(this.position)
-          const type = String.fromCharCode(
-            this.view.getUint8(this.position + 4),
-            this.view.getUint8(this.position + 5),
-            this.view.getUint8(this.position + 6),
-            this.view.getUint8(this.position + 7)
-          )
-
-          if (type === 'moov') {
-            this.position += size
-            continue
-          }
-
-          if (type === 'trak') {
-            const track = this.parseTrack()
-            if (track) {
-              this.audioTrack = track
-              return true
-            }
-          }
-
-          if (size === 0) {
-            this.position = this.buffer.byteLength
-          } else {
-            this.position += size
-          }
-        }
-        return false
-      }
-
-      private parseTrack(): { id: number; timescale: number; duration: number; chunks: { offset: number; size: number; duration: number }[] } | null {
-        const start = this.position
-        let trackId = 0
-        let timescale = 0
-        let duration = 0
-        let hasAudio = false
-        const chunks: { offset: number; size: number; duration: number }[] = []
-
-        while (this.position < start + 256 && this.position < this.buffer.byteLength) {
-          const size = this.view.getUint32(this.position)
-          const type = String.fromCharCode(
-            this.view.getUint8(this.position + 4),
-            this.view.getUint8(this.position + 5),
-            this.view.getUint8(this.position + 6),
-            this.view.getUint8(this.position + 7)
-          )
-
-          if (type === 'tkhd') {
-            trackId = this.view.getUint32(this.position + 12)
-          } else if (type === 'mdhd') {
-            timescale = this.view.getUint32(this.position + 16)
-            duration = this.view.getUint32(this.position + 20)
-          } else if (type === 'hdlr') {
-            const handlerType = String.fromCharCode(
-              this.view.getUint8(this.position + 8),
-              this.view.getUint8(this.position + 9),
-              this.view.getUint8(this.position + 10),
-              this.view.getUint8(this.position + 11)
-            )
-            hasAudio = handlerType === 'soun'
-          } else if (type === 'stsc') {
-            const entryCount = this.view.getUint32(this.position + 12)
-            let offset = this.position + 16
-            for (let i = 0; i < entryCount && offset < this.position + size; i++) {
-              const firstChunk = this.view.getUint32(offset)
-              const samplesPerChunk = this.view.getUint32(offset + 4)
-              offset += 12
-            }
-          } else if (type === 'stsz' || type === 'stco') {
-            break
-          }
-
-          this.position += size || 1
-        }
-
-        if (!hasAudio) return null
-
-        return { id: trackId, timescale, duration, chunks }
-      }
-
-      async readChunk(): Promise<number[] | null> {
-        return null
-      }
-
-      dispose() { }
-    }
-
-    const mp4Demuxer = new MP4Demuxer(arrayBuffer)
-    const track = await mp4Demuxer.getAudioTrack()
-
-    if (!track) {
-      throw new Error('No audio track found in video file')
-    }
-
-    mp4Demuxer.dispose()
-
-    try {
-      const audioContext = new AudioContext()
-      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
-      const channelData = audioBuffer.getChannelData(0)
-      return channelData
-    } catch {
-      throw new Error('Failed to decode audio from video. The video format may not be supported.')
-    }
-  }
 
   const transcribeAll = async (language?: string) => {
     const pendingFiles = files.value.filter(f => f.status === 'idle' || f.status === 'error')
@@ -569,7 +489,7 @@ export const useTranscription = () => {
   return {
     workerRef: readonly(workerRef),
     isModelLoaded: readonly(isModelLoaded),
-    currentModel: readonly(currentModel),
+    currentModel,
     currentLanguage: readonly(currentLanguage),
     subtask,
     isMultilingual,

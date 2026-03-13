@@ -1,4 +1,5 @@
-import { Canvas, FabricImage, filters } from 'fabric';
+import type { FabricImage} from 'fabric';
+import { Canvas, filters } from 'fabric';
 import { BaseFabricPlugin, FabricEditor } from '../FabricEditor';
 
 export class FilterPlugin extends BaseFabricPlugin {

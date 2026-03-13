@@ -70,6 +70,8 @@ catalog:
   zod: 4.3.6
   comark: https://pkg.pr.new/comarkdown/comark@9c1c9e3
   mediabunny: 1.38.1
+  idb: 8.0.3
+  "wavesurfer.js": 7.12.2
 
 ignoredBuiltDependencies:
   - fsevents

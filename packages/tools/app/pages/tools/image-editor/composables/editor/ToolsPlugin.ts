@@ -1,7 +1,8 @@
-import { Canvas, FabricObject, IText, Rect, Circle, Triangle, PencilBrush, FabricImage, filters, Group, Point } from 'fabric';
+import type { FabricObject} from 'fabric';
+import { Canvas, IText, Rect, Circle, Triangle, PencilBrush, FabricImage, filters, Group, Point } from 'fabric';
 import { BaseFabricPlugin, FabricEditor, type FabricObjectWithName } from './FabricEditor';
 import { nextTick } from 'vue';
-import { CorePlugin } from './CorePlugin';
+import type { CorePlugin } from './CorePlugin';
 
 export class ToolsPlugin extends BaseFabricPlugin {
   static readonly pluginName = 'tools';

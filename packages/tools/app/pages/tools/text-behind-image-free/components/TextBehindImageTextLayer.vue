@@ -116,7 +116,8 @@ const getTextStyle = (layer: TextLayer) =>
 </script>
 
 <template>
-  <div ref="el" class="absolute flex items-center justify-center cursor-grab" :style="[style, { zIndex: layer.zIndex }]"
+  <div
+ref="el" class="absolute flex items-center justify-center cursor-grab" :style="[style, { zIndex: layer.zIndex }]"
     :class="{ 'border-2 border-primary': isActive }" @click="emit('update:activeTextLayerId', layer.id)">
     <section :style="getTextStyle(layer)" class="bg-clip-text" :class="selectedFontClass">
       {{ layer.text }}

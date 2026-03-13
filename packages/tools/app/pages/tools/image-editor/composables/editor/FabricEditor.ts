@@ -1,5 +1,5 @@
 import { ref, onMounted, onUnmounted, type Ref } from 'vue';
-import { Canvas, FabricObject, InteractiveFabricObject, type CanvasEvents, type TClassProperties } from 'fabric';
+import type { FabricObject, Canvas, InteractiveFabricObject, type CanvasEvents, type TClassProperties } from 'fabric';
 import EventEmitter from 'events';
 import { useEditorState, type EditorStateInstance } from './EditorState';
 import { createEditorContext, type EditorContext, type PluginRegistrationOptions, type PluginMetadata } from './PluginContext';

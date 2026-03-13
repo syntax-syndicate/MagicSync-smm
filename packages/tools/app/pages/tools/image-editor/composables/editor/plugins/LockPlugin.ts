@@ -1,4 +1,5 @@
-import { Canvas, FabricObject } from 'fabric';
+import type { FabricObject } from 'fabric';
+import { Canvas } from 'fabric';
 import { BaseFabricPlugin, FabricEditor } from '../FabricEditor';
 
 export class LockPlugin extends BaseFabricPlugin {

@@ -9,6 +9,11 @@ export const usePodcastPlayer = () => {
   const audioUrl = useState<string>('podcast-audioUrl', () => '')
   const podcastInfo = useState<{ title: string; artwork: string } | null>('podcast-info', () => null)
 
+  const proxiedAudioUrl = computed(() => {
+    if (!audioUrl.value) return ''
+    return `/api/v1/podcast/audio?url=${encodeURIComponent(audioUrl.value)}`
+  })
+
   const playEpisode = (episode: Episode, info: { title: string; artwork: string }) => {
     currentEpisode.value = episode
     podcastInfo.value = info
@@ -29,15 +34,25 @@ export const usePodcastPlayer = () => {
     currentTime.value = time
   }
 
+  const clearAudio = () => {
+    currentEpisode.value = null
+    isPlaying.value = false
+    currentTime.value = 0
+    audioUrl.value = ''
+    podcastInfo.value = null
+  }
+
   return {
     currentEpisode: readonly(currentEpisode),
     isPlaying: readonly(isPlaying),
     currentTime: readonly(currentTime),
     audioUrl: readonly(audioUrl),
+    proxiedAudioUrl: readonly(proxiedAudioUrl),
     podcastInfo: readonly(podcastInfo),
     playEpisode,
     togglePlay,
     stop,
     setCurrentTime,
+    clearAudio,
   }
 }

@@ -1,0 +1,154 @@
+{
+  "en": {
+    "podcast": {
+      "title": "Podcast Player",
+      "description": "Discover and listen to the best tech podcasts",
+      "search": {
+        "placeholder": "Search for podcasts...",
+        "noResults": "No podcasts found for \"{term}\"",
+        "empty": "Search for your favorite podcasts above",
+        "emptyFeatures": {
+          "search": "Search by topic or name",
+          "play": "Play latest episodes instantly",
+          "save": "Save favorites locally"
+        }
+      },
+      "episode": {
+        "title": "Latest Episodes",
+        "noEpisodes": "No episodes found for this podcast",
+        "play": "Play",
+        "pause": "Pause"
+      },
+      "favorite": {
+        "save": "Save",
+        "saved": "Saved"
+      },
+      "player": {
+        "episodeUnavailable": "Episode Unavailable",
+        "episodeUnavailableBody": "This episode could not be loaded. Please try another.",
+        "unavailable": "Episode unavailable"
+      },
+      "back": "Back to Search",
+      "notifications": {
+        "searchUnavailable": "Search Unavailable",
+        "searchUnavailableBody": "Could not search podcasts. Please try again.",
+        "feedUnavailable": "Unable to Load Podcasts",
+        "feedUnavailableBody": "Could not load podcast episodes. Please try again."
+      }
+    }
+  },
+  "es": {
+    "podcast": {
+      "title": "Reproductor de Podcast",
+      "description": "Descubre y escucha los mejores podcasts de tecnología",
+      "search": {
+        "placeholder": "Buscar podcasts...",
+        "noResults": "No se encontraron podcasts para \"{term}\"",
+        "empty": "Busca tus podcasts favoritos arriba",
+        "emptyFeatures": {
+          "search": "Busca por tema o nombre",
+          "play": "Escucha los últimos episodios",
+          "save": "Guarda favoritos localmente"
+        }
+      },
+      "episode": {
+        "title": "Últimos Episodios",
+        "noEpisodes": "No se encontraron episodios para este podcast",
+        "play": "Reproducir",
+        "pause": "Pausar"
+      },
+      "favorite": {
+        "save": "Guardar",
+        "saved": "Guardado"
+      },
+      "player": {
+        "episodeUnavailable": "Episodio No Disponible",
+        "episodeUnavailableBody": "Este episodio no se pudo cargar. Prueba con otro.",
+        "unavailable": "Episodio no disponible"
+      },
+      "back": "Volver a Buscar",
+      "notifications": {
+        "searchUnavailable": "Búsqueda No Disponible",
+        "searchUnavailableBody": "No se pudieron buscar podcasts. Inténtalo de nuevo.",
+        "feedUnavailable": "No se Pudieron Cargar los Podcasts",
+        "feedUnavailableBody": "No se pudieron cargar los episodios. Inténtalo de nuevo."
+      }
+    }
+  },
+  "de": {
+    "podcast": {
+      "title": "Podcast-Player",
+      "description": "Entdecke und höre die besten Tech-Podcasts",
+      "search": {
+        "placeholder": "Podcasts suchen...",
+        "noResults": "Keine Podcasts für \"{term}\" gefunden",
+        "empty": "Suche oben nach deinen Lieblings-Podcasts",
+        "emptyFeatures": {
+          "search": "Suche nach Thema oder Name",
+          "play": "Neueste Folgen sofort abspielen",
+          "save": "Favoriten lokal speichern"
+        }
+      },
+      "episode": {
+        "title": "Neueste Folgen",
+        "noEpisodes": "Keine Folgen für diesen Podcast gefunden",
+        "play": "Abspielen",
+        "pause": "Pausieren"
+      },
+      "favorite": {
+        "save": "Speichern",
+        "saved": "Gespeichert"
+      },
+      "player": {
+        "episodeUnavailable": "Folge Nicht Verfügbar",
+        "episodeUnavailableBody": "Diese Folge konnte nicht geladen werden. Versuche eine andere.",
+        "unavailable": "Folge nicht verfügbar"
+      },
+      "back": "Zurück zur Suche",
+      "notifications": {
+        "searchUnavailable": "Suche Nicht Verfügbar",
+        "searchUnavailableBody": "Podcasts konnten nicht durchsucht werden. Bitte erneut versuchen.",
+        "feedUnavailable": "Podcasts Konnten Nicht Geladen Werden",
+        "feedUnavailableBody": "Episoden konnten nicht geladen werden. Bitte erneut versuchen."
+      }
+    }
+  },
+  "fr": {
+    "podcast": {
+      "title": "Lecteur de Podcast",
+      "description": "Découvrez et écoutez les meilleurs podcasts tech",
+      "search": {
+        "placeholder": "Rechercher des podcasts...",
+        "noResults": "Aucun podcast trouvé pour \"{term}\"",
+        "empty": "Recherchez vos podcasts préférés ci-dessus",
+        "emptyFeatures": {
+          "search": "Recherche par sujet ou nom",
+          "play": "Écouter les derniers épisodes",
+          "save": "Sauvegarder les favoris localement"
+        }
+      },
+      "episode": {
+        "title": "Derniers Épisodes",
+        "noEpisodes": "Aucun épisode trouvé pour ce podcast",
+        "play": "Écouter",
+        "pause": "Pause"
+      },
+      "favorite": {
+        "save": "Sauvegarder",
+        "saved": "Sauvegardé"
+      },
+      "player": {
+        "episodeUnavailable": "Épisode Indisponible",
+        "episodeUnavailableBody": "Cet épisode n'a pas pu être chargé. Essayez-en un autre.",
+        "unavailable": "Épisode indisponible"
+      },
+      "back": "Retour à la Recherche",
+      "notifications": {
+        "searchUnavailable": "Recherche Indisponible",
+        "searchUnavailableBody": "Impossible de rechercher des podcasts. Réessayez.",
+        "feedUnavailable": "Impossible de Charger les Podcasts",
+        "feedUnavailableBody": "Impossible de charger les épisodes. Réessayez."
+      }
+    }
+  }
+}

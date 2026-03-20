@@ -1,4 +1,14 @@
+<i18n src="./index.json"></i18n>
 <script lang="ts" setup>
+/**
+ *
+ * Podcast Player Search Page
+ *
+ * @author Ismael Garcia <leamsigc@leamsigc.com>
+ * @version 0.0.1
+ */
+
+const { t } = useI18n()
 const { searchPodcasts } = usePodcastService()
 
 const searchTerm = ref('')
@@ -6,21 +16,22 @@ const results = ref<Array<{ id: number; title: string; author: string; artwork: 
 const isSearching = ref(false)
 const hasSearched = ref(false)
 
-let debounceTimer: ReturnType<typeof setTimeout>
-
-
 watchDebounced(
   searchTerm,
   async () => {
+    if (!searchTerm.value.trim()) {
+      results.value = []
+      hasSearched.value = false
+      return
+    }
     isSearching.value = true
     hasSearched.value = true
-
     results.value = await searchPodcasts(searchTerm.value)
     isSearching.value = false
   },
   {
     debounce: 500,
-    maxWait: 1000
+    maxWait: 1000,
   },
 )
 
@@ -32,8 +43,8 @@ const handleSelect = (id: number) => {
 }
 
 useHead({
-  title: 'Podcast Player - Discover and Listen to Tech Podcasts',
-  meta: [{ name: 'description', content: 'Search and listen to the best tech podcasts with our free online player.' }],
+  title: t('podcast.title'),
+  meta: [{ name: 'description', content: t('podcast.description') }],
 })
 </script>
 
@@ -42,50 +53,63 @@ useHead({
     <BaseHeader />
     <div class="max-w-3xl mx-auto p-6">
       <header class="mb-8 mt-4">
-        <h1 class="text-3xl font-bold text-white mb-2">Podcast Player</h1>
-        <p class="text-gray-400">Discover and listen to the best tech podcasts</p>
+        <h1 class="text-3xl font-bold text-white mb-2">{{ t('podcast.title') }}</h1>
+        <p class="text-gray-400">{{ t('podcast.description') }}</p>
       </header>
 
       <div class="relative mb-8">
-        <UInput v-model="searchTerm" placeholder="Search for podcasts..." size="xl" class="w-full"
-          :ui="{ base: 'rounded-xl' }" data-testid="podcast-search-input">
+        <UInput
+          v-model="searchTerm"
+          :placeholder="t('podcast.search.placeholder')"
+          size="xl"
+          class="w-full"
+          :ui="{ base: 'rounded-xl' }"
+          data-testid="podcast-search-input"
+        >
           <template #leading>
             <UIcon name="i-lucide-search" class="w-5 h-5 text-gray-500" />
           </template>
           <template v-if="isSearching" #trailing>
-            <UIcon name="i-lucide-loader-2" class="w-5 h-5 text-gray-400 animate-spin"
-              data-testid="podcast-search-loading" />
+            <UIcon name="i-lucide-loader-2" class="w-5 h-5 text-gray-400 animate-spin" data-testid="podcast-search-loading" />
           </template>
         </UInput>
       </div>
 
       <div v-if="results.length > 0" class="space-y-3" data-testid="podcast-results">
-        <PodcastCard v-for="podcast in results" :key="podcast.id" :id="podcast.id" :title="podcast.title"
-          :author="podcast.author" :artwork="podcast.artwork" data-testid="podcast-card" @select="handleSelect" />
+        <PodcastCard
+          v-for="podcast in results"
+          :key="podcast.id"
+          :id="podcast.id"
+          :title="podcast.title"
+          :author="podcast.author"
+          :artwork="podcast.artwork"
+          data-testid="podcast-card"
+          @select="handleSelect"
+        />
       </div>
 
       <div v-else-if="hasSearched && !isSearching" class="text-center py-16" data-testid="podcast-no-results">
         <UIcon name="i-lucide-search-x" class="w-12 h-12 text-gray-600 mx-auto mb-4" />
-        <p class="text-gray-500">No podcasts found for "{{ searchTerm }}"</p>
+        <p class="text-gray-500">{{ t('podcast.search.noResults', { term: searchTerm }) }}</p>
       </div>
 
       <div v-else-if="!hasSearched" class="py-16">
         <div class="text-center mb-8">
           <UIcon name="i-lucide-headphones" class="w-12 h-12 text-gray-600 mx-auto mb-4" />
-          <p class="text-gray-500">Search for your favorite podcasts above</p>
+          <p class="text-gray-500">{{ t('podcast.search.empty') }}</p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="rounded-xl border border-white/5 bg-white/5 p-4 text-center">
             <UIcon name="i-lucide-search" class="w-6 h-6 text-orange-400 mx-auto mb-2" />
-            <p class="text-xs text-gray-400">Search by topic or name</p>
+            <p class="text-xs text-gray-400">{{ t('podcast.search.emptyFeatures.search') }}</p>
           </div>
           <div class="rounded-xl border border-white/5 bg-white/5 p-4 text-center">
             <UIcon name="i-lucide-play" class="w-6 h-6 text-orange-400 mx-auto mb-2" />
-            <p class="text-xs text-gray-400">Play latest episodes instantly</p>
+            <p class="text-xs text-gray-400">{{ t('podcast.search.emptyFeatures.play') }}</p>
           </div>
           <div class="rounded-xl border border-white/5 bg-white/5 p-4 text-center">
             <UIcon name="i-lucide-bookmark" class="w-6 h-6 text-orange-400 mx-auto mb-2" />
-            <p class="text-xs text-gray-400">Save favorites locally</p>
+            <p class="text-xs text-gray-400">{{ t('podcast.search.emptyFeatures.save') }}</p>
           </div>
         </div>
       </div>

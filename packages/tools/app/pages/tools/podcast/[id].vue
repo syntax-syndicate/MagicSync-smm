@@ -1,5 +1,17 @@
+<i18n src="./index.json"></i18n>
 <script lang="ts" setup>
+/**
+ *
+ * Podcast Detail Page — shows latest episodes from RSS feed
+ *
+ * @author Ismael Garcia <leamsigc@leamsigc.com>
+ * @version 0.0.1
+ */
 
+import type { Episode } from '../../composables/usePodcastService'
+import { saveFavorite, removeFavorite, isFavorite, savePodcast, getPodcastsById } from '../../utils/podcast-db'
+
+const { t } = useI18n()
 const route = useRoute()
 const { getPodcastFeed } = usePodcastService()
 const { currentEpisode, playEpisode } = usePodcastPlayer()
@@ -14,15 +26,38 @@ const isLoading = ref(false)
 const isFavoriteState = ref(false)
 
 const podcastId = computed(() => String(route.params.id))
+const last24Hours = 24 * 60 * 60 * 1000
 
 onMounted(async () => {
   if (feedUrl.value) {
     isLoading.value = true
-    episodes.value = await getPodcastFeed(feedUrl.value)
+    const savedPodcast = await getPodcastsById(podcastId.value)
+
+    if (savedPodcast?.episodes?.length && isPodcastSavedInLast24Hours(savedPodcast.savedAt)) {
+      episodes.value = savedPodcast.episodes
+      isLoading.value = false
+      return
+    }
+    const episodesList = await getPodcastFeed(feedUrl.value)
+    episodes.value = episodesList
+    await savePodcast({
+      id: podcastId.value,
+      title: podcastTitle.value,
+      author: podcastAuthor.value,
+      artwork: podcastArtwork.value,
+      feedUrl: feedUrl.value,
+      savedAt: Date.now(),
+      episodes: episodesList,
+    })
     isLoading.value = false
   }
   isFavoriteState.value = await isFavorite(podcastId.value)
 })
+
+const isPodcastSavedInLast24Hours = (savedAt: number) => {
+  const now = Date.now()
+  return now - savedAt < last24Hours
+}
 
 const handlePlay = (episode: Episode) => {
   playEpisode(episode, { title: podcastTitle.value, artwork: podcastArtwork.value })
@@ -50,7 +85,7 @@ const isCurrentlyPlaying = (episode: Episode) => {
 }
 
 useHead({
-  title: `${podcastTitle.value} - Podcast Player`,
+  title: `${podcastTitle.value} - ${t('podcast.title')}`,
   meta: [{ name: 'description', content: `Listen to the latest episodes from ${podcastTitle.value}` }],
 })
 </script>
@@ -61,7 +96,7 @@ useHead({
     <div class="max-w-3xl mx-auto p-6">
       <UButton variant="ghost" size="sm" icon="i-lucide-arrow-left" class="mb-6" data-testid="podcast-back"
         to="/tools/podcast">
-        Back to Search
+        {{ t('podcast.back') }}
       </UButton>
 
       <div class="flex items-start gap-6 mb-8">
@@ -78,15 +113,15 @@ useHead({
             <UButton :icon="isFavoriteState ? 'i-lucide-bookmark-check' : 'i-lucide-bookmark'"
               :variant="isFavoriteState ? 'solid' : 'outline'" :color="isFavoriteState ? 'primary' : 'neutral'"
               size="sm" data-testid="podcast-favorite-toggle" @click="handleToggleFavorite">
-              {{ isFavoriteState ? 'Saved' : 'Save' }}
+              {{ isFavoriteState ? t('podcast.favorite.saved') : t('podcast.favorite.save') }}
             </UButton>
           </div>
         </div>
       </div>
 
-      <h2 class="text-lg font-semibold text-white mb-4">Latest Episodes</h2>
+      <h2 class="text-lg font-semibold text-white mb-4">{{ t('podcast.episode.title') }}</h2>
 
-      <div v-if="isLoading" class="flex items-center justify-center py-16">
+      <div v-if="isLoading" class="flex items-center justify-center py-16" data-testid="podcast-episodes-loading">
         <UIcon name="i-lucide-loader-2" class="w-8 h-8 text-orange-400 animate-spin" />
       </div>
 
@@ -98,7 +133,7 @@ useHead({
 
       <div v-else class="text-center py-16">
         <UIcon name="i-lucide-music-off" class="w-12 h-12 text-gray-600 mx-auto mb-4" />
-        <p class="text-gray-500">No episodes found for this podcast</p>
+        <p class="text-gray-500">{{ t('podcast.episode.noEpisodes') }}</p>
       </div>
     </div>
 

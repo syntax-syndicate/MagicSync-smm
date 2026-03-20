@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import WaveSurfer from 'wavesurfer.js'
 
-const { currentEpisode, isPlaying, currentTime, audioUrl, podcastInfo, togglePlay, stop, setCurrentTime } = usePodcastPlayer()
+const { currentEpisode, isPlaying, currentTime, proxiedAudioUrl, podcastInfo, togglePlay, stop, setCurrentTime, clearAudio } = usePodcastPlayer()
 
 const containerRef = ref<HTMLElement | null>(null)
 const wavesurfer = ref<WaveSurfer | null>(null)
@@ -38,7 +38,7 @@ const initWaveSurfer = async () => {
     barRadius: 2,
     height: 48,
     normalize: true,
-    url: audioUrl.value,
+    url: proxiedAudioUrl.value,
   })
 
   wavesurfer.value.on('ready', () => {
@@ -83,12 +83,12 @@ const initWaveSurfer = async () => {
   })
 }
 
-watch(audioUrl, (newUrl) => {
+watch(proxiedAudioUrl, (newUrl) => {
   if (newUrl) initWaveSurfer()
 })
 
 onMounted(() => {
-  if (audioUrl.value) initWaveSurfer()
+  if (proxiedAudioUrl.value) initWaveSurfer()
 })
 
 onUnmounted(() => {
@@ -128,12 +128,8 @@ function handleClose() {
     wavesurfer.value.destroy()
     wavesurfer.value = null
   }
-  stop()
-  audioUrl.value = ''
-  currentEpisode.value = null
-  podcastInfo.value = null
+  clearAudio()
   duration.value = 0
-  currentTime.value = 0
   hasError.value = false
 }
 </script>

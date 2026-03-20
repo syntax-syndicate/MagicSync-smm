@@ -1,4 +1,5 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
+import type { Episode } from '../composables/usePodcastService'
 
 export interface FavoritePodcast {
   id: string
@@ -6,7 +7,8 @@ export interface FavoritePodcast {
   author: string
   artwork: string
   feedUrl: string
-  savedAt: number
+  savedAt: number,
+  episodes?: Episode[]
 }
 
 interface PodcastDB extends DBSchema {
@@ -70,5 +72,43 @@ export const isFavorite = async (id: string): Promise<boolean> => {
     return !!result
   } catch {
     return false
+  }
+}
+
+//Save the podcast feed to the db
+export const savePodcast = async (podcast: FavoritePodcast): Promise<void> => {
+  try {
+    const db = await initPodcastDB()
+    // check if the podcast already exists
+    const existingPodcast = await db.get('favorites', podcast.id)
+    if (existingPodcast) {
+      // update the savedAt timestamp
+      existingPodcast.savedAt = Date.now()
+      existingPodcast.episodes = podcast.episodes
+      await db.put('favorites', existingPodcast)
+      return
+    }
+    await db.put('favorites', podcast)
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+      useToast().add({
+        title: 'Storage Full',
+        description: 'Cannot save favorite. Browser storage is full.',
+        color: 'error',
+        icon: 'i-lucide-alert-circle',
+      })
+    } else {
+      throw error
+    }
+  }
+}
+
+//get saved podcasts by id
+export const getPodcastsById = async (id: string): Promise<FavoritePodcast | undefined> => {
+  try {
+    const db = await initPodcastDB()
+    return db.get('favorites', id)
+  } catch {
+    return undefined
   }
 }

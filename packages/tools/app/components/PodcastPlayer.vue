@@ -179,7 +179,7 @@ function handleClose() {
           { value: 1, label: '1.0x' },
           { value: 1.5, label: '1.5x' },
           { value: 2, label: '2.0x' }
-        ]" value-key="value" label-key="label" size="xs" class="w-20 z-50"
+        ]" value-key="value" label-key="label" size="xs" class="w-20" :ui="{ content: 'z-50' }"
           @update:model-value="(val: number) => handleSetRate(val)" />
       </div>
     </div>

@@ -8,8 +8,6 @@
  * @version 0.0.1
  */
 
-import type { Episode } from '../../composables/usePodcastService'
-import { saveFavorite, removeFavorite, isFavorite, savePodcast, getPodcastsById } from '../../utils/podcast-db'
 
 const { t } = useI18n()
 const route = useRoute()

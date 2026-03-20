@@ -1,9 +1,9 @@
 {
   "en": {
-    "title": "EchoTranscribe",
+    "title": "MagicSync free transcription",
     "description": "Local, private, in-browser transcription powered by WebGPU and Transformers.js",
     "audio-transcription": {
-      "title": "EchoTranscribe",
+      "title": "MagicSync free transcription",
       "description": "Local, private, in-browser transcription powered by WebGPU and Transformers.js",
       "dropzone": {
         "label": "Click or drag file to this area to upload",
@@ -105,10 +105,10 @@
     "click_to_transcribe": "Click on the audio to start transcription"
   },
   "es": {
-    "title": "EchoTranscribe",
+    "title": "MagicSync free transcription",
     "description": "Transcripción local, privada en el navegador impulsada por WebGPU y Transformers.js",
     "audio-transcription": {
-      "title": "EchoTranscribe",
+      "title": "MagicSync free transcription",
       "description": "Transcripción local, privada en el navegador impulsada por WebGPU y Transformers.js",
       "dropzone": {
         "label": "Haz clic o arrastra un archivo a esta área para subir",
@@ -209,10 +209,10 @@
     "click_to_transcribe": "Haz clic en el audio para iniciar la transcripción"
   },
   "de": {
-    "title": "EchoTranscribe",
+    "title": "MagicSync free transcription",
     "description": "Lokale, private Browser-Transkription angetrieben von WebGPU und Transformers.js",
     "audio-transcription": {
-      "title": "EchoTranscribe",
+      "title": "MagicSync free transcription",
       "description": "Lokale, private Browser-Transkription angetrieben von WebGPU und Transformers.js",
       "dropzone": {
         "label": "Klicken Sie hier oder ziehen Sie eine Datei hierher",
@@ -313,10 +313,10 @@
     "click_to_transcribe": "Klicken Sie auf das Audio, um die Transkription zu starten"
   },
   "fr": {
-    "title": "EchoTranscribe",
+    "title": "MagicSync free transcription",
     "description": "Transcription locale et privée dans le navigateur propulsée par WebGPU et Transformers.js",
     "audio-transcription": {
-      "title": "EchoTranscribe",
+      "title": "MagicSync free transcription",
       "description": "Transcription locale et privée dans le navigateur propulsée par WebGPU et Transformers.js",
       "dropzone": {
         "label": "Cliquez ou glissez un fichier ici pour télécharger",

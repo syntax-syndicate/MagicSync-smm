@@ -9,10 +9,10 @@
  * @version 0.0.1
  */
 
-import DropZone from './Components/DropZone.vue'
-import RecentProjects from './Components/RecentProjects.vue'
-import ProjectDetail from './Components/ProjectDetail.vue'
-import Notch from './Components/Notch.vue'
+import DropZone from './components/DropZone.vue'
+import RecentProjects from './components/RecentProjects.vue'
+import ProjectDetail from './components/ProjectDetail.vue'
+import Notch from './components/Notch.vue'
 
 const { t } = useI18n()
 
@@ -86,7 +86,7 @@ useHead({
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#0a0a0a] text-gray-200 font-sans selection:bg-emerald-500/30">
+  <div class="min-h-screen font-sans ">
     <BaseHeader />
     <div class="max-w-6xl mx-auto p-6">
       <Notch v-if="isProcessing" :status="processingStatus" :progress="processingProgress"
@@ -94,7 +94,7 @@ useHead({
         @stop="handleStop" />
 
       <header class="mb-12 mt-8">
-        <h1 class="text-3xl font-semibold tracking-tight text-white mb-2">{{ t('audio-transcription.title') }}</h1>
+        <h1 class="text-3xl font-semibold tracking-tight  mb-2">{{ t('audio-transcription.title') }}</h1>
         <p class="text-gray-400">{{ t('audio-transcription.description') }}</p>
       </header>
 

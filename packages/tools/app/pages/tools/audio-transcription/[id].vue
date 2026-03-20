@@ -8,7 +8,7 @@
  * @version 0.0.1
  */
 
-import ProjectDetailComponent from './Components/ProjectDetail.vue'
+import ProjectDetailComponent from './components/ProjectDetail.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -37,13 +37,13 @@ const handleUpdate = (id: string, updates: Record<string, unknown>) => {
 }
 
 useHead({
-  title: project.value?.filename ? `${project.value.filename} - EchoTranscribe` : 'Project - EchoTranscribe',
+  title: project.value?.filename ? `${project.value.filename} - MagicSync Free transcription` : 'Project - MagicSync Free transcription',
   meta: [{ name: 'description', content: 'View and edit your transcription project' }]
 })
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#0a0a0a] text-gray-200 font-sans selection:bg-emerald-500/30">
+  <div class="min-h-screen   font-sans ">
     <BaseHeader />
     <div class="max-w-6xl mx-auto p-6">
       <div v-if="isLoading" class="flex items-center justify-center py-20">
@@ -52,7 +52,7 @@ useHead({
 
       <div v-else-if="!project" class="text-center py-20">
         <UIcon name="i-lucide-file-x" class="w-16 h-16 mx-auto text-gray-500 mb-4" />
-        <h2 class="text-xl font-semibold text-white mb-2">Project not found</h2>
+        <h2 class="text-xl font-semibold mb-2">Project not found</h2>
         <p class="text-gray-400 mb-6">The project you're looking for doesn't exist or has been deleted.</p>
         <UButton color="primary" icon="i-lucide-arrow-left" @click="handleBack">
           Back to Projects

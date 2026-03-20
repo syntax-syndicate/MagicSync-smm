@@ -10,7 +10,17 @@ export class HooksPlugin extends BaseFabricPlugin {
     beforeLoad: [],
     afterLoad: [],
     beforeExport: [],
-    afterExport: []
+    afterExport: [],
+    beforeInit: [],
+    afterInit: [],
+    beforeRender: [],
+    afterRender: [],
+    objectAdded: [],
+    objectRemoved: [],
+    objectModified: [],
+    selectionCreated: [],
+    selectionUpdated: [],
+    selectionCleared: []
   };
 
   protected init() { }

@@ -58,15 +58,15 @@ const getStatusLabel = (status: string): string => {
 </script>
 
 <template>
-  <div class=" border border-white/5 rounded-2xl overflow-hidden">
-    <div class="p-6 border-b border-white/5">
-      <h2 class="text-xl font-semibold text-white">{{ t('audio-transcription.recentProjects.title') }}</h2>
-      <p class="text-sm text-gray-500 mt-1">{{ t('audio-transcription.recentProjects.subtitle') }}</p>
+  <div class=" border border-black/10 dark:border-white/5 rounded-2xl overflow-hidden">
+    <div class="p-6 border-b border-black/10 dark:border-white/5">
+      <h2 class="text-xl font-semibold ">{{ t('audio-transcription.recentProjects.title') }}</h2>
+      <p class="text-sm  mt-1">{{ t('audio-transcription.recentProjects.subtitle') }}</p>
     </div>
 
     <div class="overflow-x-auto">
       <table class="w-full text-left text-sm">
-        <thead class="text-xs text-gray-500 uppercase bg-white/2">
+        <thead class="text-xs  uppercase ">
           <tr>
             <th class="px-6 py-4 font-medium">{{ t('audio-transcription.recentProjects.fileName') }}</th>
             <th class="px-6 py-4 font-medium">{{ t('audio-transcription.recentProjects.length') }}</th>
@@ -76,10 +76,11 @@ const getStatusLabel = (status: string): string => {
             <th class="px-6 py-4 font-medium text-right">{{ t('audio-transcription.recentProjects.actions') }}</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-white/5">
+        <tbody class="divide-y dark:divide-white/5 divide-black/5">
           <tr v-for="project in projects" :key="project.id"
-            class="hover:bg-white/2 transition-colors cursor-pointer group" @click="$emit('select', project.id)">
-            <td class="px-6 py-4 font-medium text-gray-200 flex items-center gap-3">
+            class="dark:hover:bg-white/2 hover:bg-black/10 transition-colors cursor-pointer group"
+            @click="$emit('select', project.id)">
+            <td class="px-6 py-4 font-medium  flex items-center gap-3">
               <UIcon name="i-lucide-file-audio" class="w-4 h-4 text-gray-400 shrink-0" />
               <span class="truncate max-w-[200px]">{{ project.filename }}</span>
             </td>
@@ -110,7 +111,7 @@ const getStatusLabel = (status: string): string => {
       </table>
     </div>
 
-    <div v-if="projects.length === 0" class="p-12 text-center text-gray-500">
+    <div v-if="projects.length === 0" class="p-12 text-center ">
       <UIcon name="i-lucide-folder-open" class="w-12 h-12 mx-auto mb-4 opacity-50" />
       <p>{{ t('audio-transcription.recentProjects.empty') }}</p>
     </div>

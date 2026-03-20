@@ -1,4 +1,4 @@
-import type { FabricObject} from 'fabric';
+import type { FabricObject, FabricObjectProps, ObjectEvents, SerializedObjectProps, ActiveSelection } from 'fabric';
 import { Canvas, util } from 'fabric';
 import { BaseFabricPlugin, FabricEditor } from '../FabricEditor';
 
@@ -36,11 +36,13 @@ export class ClipboardPlugin extends BaseFabricPlugin {
             });
             if (clonedObj.type === 'activeSelection') {
                 // activeSelection needs to be added to canvas differently
-                clonedObj.canvas = this.canvas;
-                clonedObj.forEachObject((obj) => {
+                const activeSelection = clonedObj as ActiveSelection;
+                activeSelection.canvas = this.canvas;
+                // Use _objects property to iterate through selection objects
+                activeSelection._objects.forEach((obj: FabricObject<Partial<FabricObjectProps>, SerializedObjectProps, ObjectEvents>) => {
                     this.canvas?.add(obj);
                 });
-                clonedObj.setCoords();
+                activeSelection.setCoords();
             } else {
                 this.canvas.add(clonedObj);
             }

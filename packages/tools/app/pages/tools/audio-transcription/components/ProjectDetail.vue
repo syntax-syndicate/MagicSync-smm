@@ -123,11 +123,11 @@ const isSegmentActive = (index: number) => activeSegment.value === index
 
 <template>
   <div class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-    <div class="flex items-center justify-between border-b border-white/5 pb-6">
+    <div class="flex items-center justify-between border-b dark:border-white/5 border-black/10 pb-6">
       <div class="flex items-center gap-4">
         <UButton variant="ghost" size="lg" icon="i-lucide-arrow-left" @click="emit('back')" />
         <div>
-          <h2 class="text-2xl font-semibold text-white flex items-center gap-3">
+          <h2 class="text-2xl font-semibold  flex items-center gap-3">
             {{ project.filename }}
             <span class="text-xs font-medium px-2 py-0.5 rounded-full  text-gray-400 border border-white/10">
               {{ t('audio-transcription.projectDetail.draft') }}
@@ -156,7 +156,7 @@ const isSegmentActive = (index: number) => activeSegment.value === index
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <div class="lg:col-span-2 space-y-8">
-        <div class=" border border-white/5 rounded-2xl p-6">
+        <div class=" border dark:border-white/5 border-black/10 rounded-2xl p-6">
           <h3 class="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">{{
             t('audio-transcription.projectDetail.audio') }}</h3>
           <ClientOnly>
@@ -168,7 +168,7 @@ const isSegmentActive = (index: number) => activeSegment.value === index
           </ClientOnly>
         </div>
 
-        <div class=" border border-white/5 rounded-2xl p-6">
+        <div class=" border dark:border-white/5 border-black/10 rounded-2xl p-6">
           <h3 class="text-sm font-medium text-gray-400 uppercase tracking-wider mb-6">{{
             t('audio-transcription.projectDetail.transcript') }}</h3>
           <div ref="transcriptRef"
@@ -188,13 +188,11 @@ const isSegmentActive = (index: number) => activeSegment.value === index
                     {{ t('audio-transcription.projectDetail.speaker') }} {{ segment.speaker || '1' }}
                   </span>
                 </div>
-                <p
-                  :class="['text-lg leading-relaxed flex flex-wrap', isSegmentActive(idx) ? 'text-white' : 'text-gray-300']">
+                <p :class="['text-lg leading-relaxed flex flex-wrap', isSegmentActive(idx) ? '' : 'text-gray-300']">
                   <template v-for="(word, wordIdx) in segment.text.split(' ')" :key="wordIdx">
                     <span v-if="isWordEditing(segment.id, wordIdx)">
-                      <input v-model="editValue"
-                        class="bg-white/10 text-white px-1 rounded outline-none inline-block w-24" @blur="saveEdit"
-                        @keydown.enter="saveEdit" @keydown.escape="cancelEdit" autofocus>
+                      <input v-model="editValue" class="bg-white/10  px-1 rounded outline-none inline-block w-24"
+                        @blur="saveEdit" @keydown.enter="saveEdit" @keydown.escape="cancelEdit" autofocus>
                     </span>
                     <span v-else @dblclick.stop="startEditing(segment.id, wordIdx, word)"
                       class="cursor-text hover:bg-white/10 rounded px-0.5 transition-colors">
@@ -241,7 +239,7 @@ const isSegmentActive = (index: number) => activeSegment.value === index
       </div>
 
       <div class="space-y-6">
-        <div class=" border border-white/5 rounded-2xl p-6">
+        <div class=" border dark:border-white/5 border-black/10 rounded-2xl p-6">
           <h3 class="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">{{
             t('audio-transcription.projectDetail.summary') }}</h3>
           <div v-if="project.summaryStatus === 'processing'" class="animate-pulse space-y-3">
@@ -249,25 +247,25 @@ const isSegmentActive = (index: number) => activeSegment.value === index
             <div class="h-4  rounded w-full"></div>
             <div class="h-4  rounded w-5/6"></div>
           </div>
-          <div v-else-if="project.summary" class="p-4 bg-[#1a1a1a] rounded-xl border border-white/5">
-            <p class="text-sm leading-relaxed text-gray-300">{{ project.summary }}</p>
+          <div v-else-if="project.summary" class="p-4  rounded-xl border border-transparent">
+            <p class="text-sm leading-relaxed ">{{ project.summary }}</p>
           </div>
           <div v-else class="text-sm text-gray-500">
             {{ t('audio-transcription.projectDetail.summaryPlaceholder') }}
           </div>
         </div>
 
-        <div class=" border border-white/5 rounded-2xl p-6">
+        <div class=" border dark:border-white/5 border-black/10 rounded-2xl p-6">
           <h3 class="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">{{
             t('audio-transcription.projectDetail.engine') }}</h3>
           <div class="space-y-4">
             <div class="flex justify-between items-center text-sm">
               <span class="text-gray-500">{{ t('audio-transcription.model') }}</span>
-              <span class="text-white font-medium">{{ project.engine.split('/').pop() }}</span>
+              <span class=" font-medium">{{ project.engine.split('/').pop() }}</span>
             </div>
             <div class="flex justify-between items-center text-sm">
               <span class="text-gray-500">{{ t('audio-transcription.language') }}</span>
-              <span class="text-white font-medium capitalize">{{ project.language }}</span>
+              <span class=" font-medium capitalize">{{ project.language }}</span>
             </div>
             <div class="flex justify-between items-center text-sm">
               <span class="text-gray-500">{{ t('audio-transcription.recentProjects.status') }}</span>

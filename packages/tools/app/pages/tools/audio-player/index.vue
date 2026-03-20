@@ -92,8 +92,8 @@ const handleTimeUpdate = (time: number) => {
         </div>
       </div>
 
-      <AudioPlayer v-if="audioData" :audio-data="audioData" :current-time="currentTime"
-        @time-update="handleTimeUpdate" />
+      <AudioPlayer v-if="audioData" :audio-data="audioData" :current-time="currentTime" container-class="h-80"
+        class="h-96" @time-update="handleTimeUpdate" />
 
       <div v-else class="border border-gray-700/50 rounded-2xl p-12 text-center">
         <UIcon name="i-lucide-headphones" class="w-16 h-16 text-gray-600 mx-auto mb-4" />
@@ -101,12 +101,68 @@ const handleTimeUpdate = (time: number) => {
       </div>
 
       <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <BaseShinyCard title="Waveform Visualization"
-          description="See your audio as an interactive waveform with precise seeking" icon="i-lucide-audio-waveform" />
-        <BaseShinyCard title="Playback Controls" description="Full control: play, pause, seek, and speed adjustment"
-          icon="i-lucide-sliders" />
-        <BaseShinyCard title="Local Playback" description="Process audio files locally in your browser"
-          icon="i-lucide-file-audio" />
+        <BaseShinyCard>
+          <UCard
+            class="bg-muted/50 dark:bg-card hover:bg-background dark:hover:bg-background transition-all delay-75 group/number h-full">
+            <template #header>
+              <div class="flex justify-between">
+                <Icon class="size-8 mb-6 text-primary" name="i-lucide-audio-waveform" />
+
+                <span
+                  class="text-5xl text-muted-foreground/15 font-medium transition-all delay-75 group-hover/number:text-muted-foreground/30">
+                  01
+                </span>
+              </div>
+
+              <h2>Audio Player</h2>
+            </template>
+
+            <section class="text-muted-foreground">
+              Play audio files with waveform visualization
+            </section>
+          </UCard>
+        </BaseShinyCard>
+        <BaseShinyCard>
+          <UCard
+            class="bg-muted/50 dark:bg-card hover:bg-background dark:hover:bg-background transition-all delay-75 group/number h-full">
+            <template #header>
+              <div class="flex justify-between">
+                <Icon class="size-8 mb-6 text-primary" name="i-lucide-sliders" />
+                <span
+                  class="text-5xl text-muted-foreground/15 font-medium transition-all delay-75 group-hover/number:text-muted-foreground/30">
+                  02
+                </span>
+              </div>
+
+              <h2>Playback Controls</h2>
+            </template>
+
+            <section class="text-muted-foreground">
+              Full control: play, pause, seek, and speed adjustment
+            </section>
+          </UCard>
+
+        </BaseShinyCard>
+        <BaseShinyCard>
+          <UCard
+            class="bg-muted/50 dark:bg-card hover:bg-background dark:hover:bg-background transition-all delay-75 group/number h-full">
+            <template #header>
+              <div class="flex justify-between">
+                <Icon class="size-8 mb-6 text-primary" name="i-lucide-file-audio" />
+                <span
+                  class="text-5xl text-muted-foreground/15 font-medium transition-all delay-75 group-hover/number:text-muted-foreground/30">
+                  03
+                </span>
+              </div>
+
+              <h2>Local Playback</h2>
+            </template>
+
+            <section class="text-muted-foreground">
+              Process audio files locally in your browser
+            </section>
+          </UCard>
+        </BaseShinyCard>
       </div>
     </main>
     <BaseFooter />

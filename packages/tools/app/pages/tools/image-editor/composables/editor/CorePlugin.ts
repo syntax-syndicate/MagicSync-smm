@@ -1,6 +1,6 @@
 import type { Canvas} from 'fabric';
 import { iMatrix, Point, Rect, util } from 'fabric';
-import type { FabricEditor, BaseFabricPlugin, type FabricObjectWithName } from './FabricEditor';
+import  { FabricEditor, BaseFabricPlugin,type FabricObjectWithName } from './FabricEditor';
 import type { EditorContext } from './PluginContext';
 
 // Custom throttle implementation

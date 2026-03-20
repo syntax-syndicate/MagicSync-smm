@@ -23,6 +23,9 @@
         "save": "Save",
         "saved": "Saved"
       },
+      "saved": {
+        "title": "Saved Podcasts"
+      },
       "player": {
         "episodeUnavailable": "Episode Unavailable",
         "episodeUnavailableBody": "This episode could not be loaded. Please try another.",
@@ -60,6 +63,9 @@
       "favorite": {
         "save": "Guardar",
         "saved": "Guardado"
+      },
+      "saved": {
+        "title": "Podcasts Guardados"
       },
       "player": {
         "episodeUnavailable": "Episodio No Disponible",
@@ -99,6 +105,9 @@
         "save": "Speichern",
         "saved": "Gespeichert"
       },
+      "saved": {
+        "title": "Gespeicherte Podcasts"
+      },
       "player": {
         "episodeUnavailable": "Folge Nicht Verfügbar",
         "episodeUnavailableBody": "Diese Folge konnte nicht geladen werden. Versuche eine andere.",
@@ -136,6 +145,9 @@
       "favorite": {
         "save": "Sauvegarder",
         "saved": "Sauvegardé"
+      },
+      "saved": {
+        "title": "Podcasts Sauvegardés"
       },
       "player": {
         "episodeUnavailable": "Épisode Indisponible",

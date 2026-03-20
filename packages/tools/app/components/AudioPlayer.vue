@@ -12,6 +12,7 @@ import WaveSurfer from 'wavesurfer.js'
 interface Props {
   audioData: ArrayBuffer
   currentTime: number
+  containerClass?: string
 }
 
 const props = defineProps<Props>()
@@ -48,7 +49,7 @@ onMounted(async () => {
     barWidth: 2,
     barGap: 1,
     barRadius: 2,
-    height: 60,
+    // height: 60,
     normalize: true,
   })
 
@@ -129,6 +130,6 @@ function setPlaybackRate(rate: number) {
           @update:model-value="(val: number) => setPlaybackRate(val)" />
       </div>
     </div>
-    <div ref="containerRef" class="w-full" />
+    <div ref="containerRef" class="w-full" :class="props.containerClass" />
   </div>
 </template>
